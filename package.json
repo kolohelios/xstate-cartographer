@@ -1,14 +1,14 @@
 {
-  "name": "@statecharts/xstate-viz",
-  "version": "0.0.2",
-  "description": "Visualizer for XState",
+  "name": "xstate-cartographer",
+  "version": "0.0.1",
+  "description": "(Alternative) Visualizer for XState",
   "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "examples": "tsc && ncp lib examples/src/lib && cd examples && npm start",
     "prepublish": "tsc"
   },
-  "author": "David Khourshid",
+  "author": "Jon Edwards",
   "license": "MIT",
   "devDependencies": {
     "@types/react": "^16.4.18",

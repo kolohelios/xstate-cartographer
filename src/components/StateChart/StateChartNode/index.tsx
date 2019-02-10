@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Machine as _Machine, StateNode, State, EventObject } from 'xstate'
 import styled from 'styled-components'
-import { transitions, condToString } from './utils'
+import { transitions, condToString } from '../../../lib/utils'
 
 const StyledChildStatesToggle = styled.button`
   display: inline-block;
@@ -295,7 +295,9 @@ export class StateChartNode extends React.Component<StateChartNodeProps> {
         <StyledEvents>
           {transitions(stateNode).map(transition => {
             const ownEvent = transition.event
-            console.log(friendlyEventName(ownEvent))
+            if (process.env.NODE_ENV !== 'test') {
+              console.log(friendlyEventName(ownEvent))
+            }
 
             const disabled: boolean =
               current.nextEvents.indexOf(ownEvent) === -1 ||
@@ -303,7 +305,7 @@ export class StateChartNode extends React.Component<StateChartNodeProps> {
                 typeof transition.cond === 'function' &&
                 !transition.cond(current.context, ownEvent, {}))
             return (
-              <StyledEvent>
+              <StyledEvent key={stateNode.id}>
                 <StyledEventButton
                   onClick={() => onEvent(ownEvent)}
                   onMouseOver={() => onPreEvent(ownEvent)}

@@ -10,7 +10,7 @@ Please consider becoming a [sponsor](https://opencollective.com/xstate) of and c
 
 ## Inspiration
 
-More than simply inspriation, the  starting point for this project is David Khourshid's [xstate-viz](https://github.com/statecharts/xstate-viz); see it in action [here](https://statecharts.github.io/xstate-viz/). The code was originally forked from `xstate-viz` and then separated.
+More than simply inspiration, the starting point for this project is David Khourshid's [xstate-viz](https://github.com/statecharts/xstate-viz); see it in action [here](https://statecharts.github.io/xstate-viz/). The code was originally forked from `xstate-viz` and then separated.
 
 ## Current feature wish list
 
@@ -19,6 +19,7 @@ More than simply inspriation, the  starting point for this project is David Khou
 - [ ] provide "dark mode" setting
 - [ ] use localStorage to persist statechart(s)
 - [ ] add ability to load examples as presets for exploration
-- [ ] add mock API functionality for asyncronous event
-- [ ] create two-way statechart changes based on  UI interaction
+- [ ] add mock API functionality for asynchronous event
+- [ ] create two-way statechart changes based on UI interaction
 - [ ] create an Electron app for even more local visualization
+- [ ] add Travis CI and Coveralls testing

@@ -11,7 +11,7 @@ import {
 import * as XState from 'xstate'
 import { getEdges } from 'xstate/lib/graph'
 import { StateChartNode } from './StateChartNode'
-import AceEditor from 'react-ace'
+import { ToolPanel } from './components/ToolPanel'
 import 'brace/theme/monokai'
 import 'brace/mode/javascript'
 
@@ -46,28 +46,6 @@ const StyledStateChart = styled.div`
     overflow-y: scroll;
   }
 `
-
-const StyledField = styled.div`
-  > label {
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 0.5em;
-    font-weight: bold;
-  }
-`
-
-interface FieldProps {
-  label: string
-  children: any
-}
-function Field({ label, children }: FieldProps) {
-  return (
-    <StyledField>
-      <label>{label}</label>
-      {children}
-    </StyledField>
-  )
-}
 
 interface Point {
   x: number
@@ -165,53 +143,6 @@ export class StateChart extends React.Component<
   componentDidMount() {
     this.service.start()
   }
-  renderView() {
-    const { view, current, machine, code } = this.state
-
-    switch (view) {
-      case 'definition':
-        return (
-          <AceEditor
-            mode="javascript"
-            theme="monokai"
-            editorProps={{ $blockScrolling: true }}
-            value={code}
-            onChange={value => this.setState({ code: value })}
-            setOptions={{ tabSize: 2 }}
-            width="100%"
-            height="100%"
-          />
-        )
-      case 'state':
-        return (
-          <div>
-            <Field label="Value">
-              <pre>{JSON.stringify(current.value, null, 2)}</pre>
-            </Field>
-            <Field label="Actions">
-              {current.actions.length ? (
-                <ul>
-                  {current.actions.map(action => {
-                    return <li key={action.type}>{action.type}</li>
-                  })}
-                </ul>
-              ) : (
-                '-'
-              )}
-            </Field>
-            <Field label="Context">
-              {current.context !== undefined ? (
-                <pre>{JSON.stringify(current.context, null, 2)}</pre>
-              ) : (
-                '-'
-              )}
-            </Field>
-          </div>
-        )
-      default:
-        return null
-    }
-  }
   toggleState(id: string) {
     this.setState({
       toggledStates: {
@@ -244,6 +175,9 @@ export class StateChart extends React.Component<
           .start()
       }
     )
+  }
+  updateCode = (code: string) => {
+    this.setState({ code })
   }
   render() {
     const { current, preview, previewEvent, machine } = this.state
@@ -456,7 +390,12 @@ export class StateChart extends React.Component<
               )
             })}
           </StyledViewTabs>
-          {this.renderView()}
+          <ToolPanel
+            view={this.state.view}
+            current={this.state.current}
+            code={this.state.code}
+            updateCode={this.updateCode}
+          />
           <footer>
             <button onClick={() => this.updateMachine()}>Update</button>
           </footer>

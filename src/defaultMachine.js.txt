@@ -1,0 +1,20 @@
+
+// Available variables:
+// Machine (machine factory function)
+// XState (all XState exports)
+
+const lightMachine = Machine({
+  id: "light",
+  initial: "green",
+  states: {
+    green: {
+      on: { TIMER: "yellow" }
+    },
+    yellow: {
+      on: { TIMER: "red" }
+    },
+    red: {
+      on: { TIMER: "green" }
+    }
+  }
+});

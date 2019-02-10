@@ -2,17 +2,9 @@
   "compilerOptions": {
     "jsx": "react",
     "target": "es5",
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
+    "lib": ["es6", "dom"],
+    "module": "commonjs",
     "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "lib": ["dom", "es7"],
-    "outDir": "./lib",
-    "declaration": true
-  },
-  "include": ["src"]
+    "esModuleInterop": true
+  }
 }

@@ -1,6 +1,7 @@
 # xstate-cartographer
 
 [![Build Status](https://travis-ci.org/kolohelios/xstate-cartographer.svg?branch=master)](https://travis-ci.org/kolohelios/xstate-cartographer)
+[![Coverage Status](https://coveralls.io/repos/github/kolohelios/xstate-cartographer/badge.svg?branch=master)](https://coveralls.io/github/kolohelios/xstate-cartographer?branch=master)
 
 For the time being, this is just a lightweight local dev implementation of an XState statechart visualizer.
 

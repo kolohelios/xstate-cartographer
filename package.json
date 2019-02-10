@@ -4,8 +4,9 @@
   "description": "(Alternative) Visualizer for XState",
   "main": "lib/index.js",
   "scripts": {
-    "test": "node_modules/.bin/jest --coverage",
-    "start": "node fuse"
+    "test": "NODE_ENV=test node_modules/.bin/jest --coverage --no-cache",
+    "start": "node fuse",
+    "coveralls": "cat ./coverage/lcov.info | coveralls"
   },
   "author": "Jon Edwards",
   "license": "MIT",
@@ -15,6 +16,7 @@
     "@types/react-dom": "^16.8.0",
     "@types/react-test-renderer": "^16.8.0",
     "@types/styled-components": "^4.0.3",
+    "coveralls": "^3.0.2",
     "fuse-box": "^3.7.0",
     "jest": "^23.6.0",
     "prettier": "^1.16.4",

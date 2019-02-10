@@ -11,7 +11,7 @@ import {
 import * as XState from 'xstate'
 import { getEdges } from 'xstate/lib/graph'
 import { StateChartNode } from './StateChartNode'
-import { ToolPanel } from './components/ToolPanel'
+import { ToolPanel } from '../ToolPanel'
 import 'brace/theme/monokai'
 import 'brace/mode/javascript'
 
@@ -273,7 +273,7 @@ export class StateChart extends React.Component<
                 <path d="M0,0 L0,4 L4,2 z" fill="var(--color-primary)" />
               </marker>
             </defs>
-            {edges.map(edge => {
+            {edges.map((edge, i) => {
               if (!this.svgRef.current) {
                 return
               }
@@ -358,6 +358,7 @@ export class StateChart extends React.Component<
 
               return (
                 <path
+                  key={i}
                   d={`M${start.x} ${start.y - 1} ${pathMidpoints} ${end.x} ${
                     end.y
                   }`}

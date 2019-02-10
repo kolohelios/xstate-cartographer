@@ -4,7 +4,10 @@
   "editor.tabSize": 2,
   "cSpell.words": [
     "cond",
+    "fsms",
+    "khourshid",
     "monokai",
+    "scxml",
     "statechart",
     "tslib",
     "xstate"

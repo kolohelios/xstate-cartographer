@@ -1,7 +1,7 @@
 import * as React from 'react'
-import { StateChart } from './StateChart'
+import { StateChart } from './components/StateChart'
 
-const rawDefaultMachineText = require('./defaultMachine.js.txt')
+const rawDefaultMachineText = require('./sampleMachines/defaultMachine.js.txt')
 
 const defaultMachine = Object.values(rawDefaultMachineText).join('')
 

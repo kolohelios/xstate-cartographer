@@ -1,7 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Header renders correctly 1`] = `
-<div>
-  Header
+<div
+  className="sc-bdVaJa hFffZV"
+>
+  <p
+    className="sc-bwzfXH iJxcRz"
+  >
+    XState Cartographer
+  </p>
 </div>
 `;

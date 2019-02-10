@@ -9,7 +9,7 @@ const defaultMachine = Object.values(rawDefaultMachineText).join('')
 export const App = () => {
   return (
     <Layout>
-      <StateChart machine={defaultMachine} height={'calc(100vh - 30px)'} />
+      <StateChart machine={defaultMachine} height={'calc(100vh - 70px)'} />
     </Layout>
   )
 }

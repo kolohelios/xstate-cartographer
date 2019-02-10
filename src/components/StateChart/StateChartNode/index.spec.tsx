@@ -1,7 +1,6 @@
 import * as React from 'react'
 import { StateChartNode } from '.'
 import TestRenderer from 'react-test-renderer'
-import { StateChart } from '..'
 import { Machine, interpret } from 'xstate'
 
 const simpleMachine = Machine({

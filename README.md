@@ -25,4 +25,4 @@ More than simply inspiration, the starting point for this project is David Khour
 - [ ] add mock API functionality for asynchronous event
 - [ ] create two-way statechart changes based on UI interaction
 - [ ] create an Electron app for even more local visualization
-- [ ] add Travis CI and Coveralls testing
+- [X] add Travis CI and Coveralls testing

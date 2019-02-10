@@ -1,5 +1,4 @@
 export { condToString } from './condToString'
-export { isChildOf } from './isChildOf'
 export { flatten } from './flatten'
 export { friendlyEventName } from './friendlyEventName'
 export { toMachine } from './toMachine'

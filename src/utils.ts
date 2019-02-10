@@ -1,20 +1,20 @@
-import { StateNode, TransitionDefinition } from "xstate";
+import { StateNode, TransitionDefinition } from 'xstate'
 
 export function isChildOf(
   childState: StateNode,
   parentState: StateNode
 ): boolean {
-  let marker = childState;
+  let marker = childState
 
   while (marker.parent && marker.parent !== parentState) {
-    marker = marker.parent;
+    marker = marker.parent
   }
 
-  return marker === parentState;
+  return marker === parentState
 }
 
 export function flatten<T>(array: T[][]): T[] {
-  return ([] as T[]).concat(...array);
+  return ([] as T[]).concat(...array)
 }
 
 export function transitions(
@@ -22,20 +22,20 @@ export function transitions(
 ): TransitionDefinition<any, any>[] {
   return flatten(
     stateNode.ownEvents.map(event => {
-      return stateNode.definition.on[event];
+      return stateNode.definition.on[event]
     })
-  );
+  )
 }
 
 export function condToString(cond: string | Function) {
-  if (typeof cond === "function") {
-    console.log(cond.toString());
+  if (typeof cond === 'function') {
+    console.log(cond.toString())
     return cond
       .toString()
-      .replace(/\n/g, "")
+      .replace(/\n/g, '')
       .match(/\{(.*)\}/)![1]
-      .trim();
+      .trim()
   }
 
-  return cond;
+  return cond
 }

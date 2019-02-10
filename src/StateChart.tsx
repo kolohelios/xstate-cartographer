@@ -1,19 +1,19 @@
-import React from "react";
-import styled from "styled-components";
-import { interpret } from "xstate/lib/interpreter";
+import * as React from 'react'
+import styled from 'styled-components'
+import { interpret, Interpreter } from 'xstate/lib/interpreter'
 import {
   Machine as _Machine,
   StateNode,
   State,
   EventObject,
-  Machine
-} from "xstate";
-import * as XState from "xstate";
-import { getEdges } from "xstate/lib/graph";
-import { StateChartNode } from "./StateChartNode";
-import AceEditor from "react-ace";
-import "brace/theme/monokai";
-import "brace/mode/javascript";
+  Machine,
+} from 'xstate'
+import * as XState from 'xstate'
+import { getEdges } from 'xstate/lib/graph'
+import { StateChartNode } from './StateChartNode'
+import AceEditor from 'react-ace'
+import 'brace/theme/monokai'
+import 'brace/mode/javascript'
 
 const StyledViewTabs = styled.ul`
   display: flex;
@@ -30,7 +30,7 @@ const StyledViewTabs = styled.ul`
     text-align: center;
     list-style: none;
   }
-`;
+`
 
 const StyledStateChart = styled.div`
   display: grid;
@@ -45,7 +45,7 @@ const StyledStateChart = styled.div`
     max-height: inherit;
     overflow-y: scroll;
   }
-`;
+`
 
 const StyledField = styled.div`
   > label {
@@ -54,11 +54,11 @@ const StyledField = styled.div`
     margin-bottom: 0.5em;
     font-weight: bold;
   }
-`;
+`
 
 interface FieldProps {
-  label: string;
-  children: any;
+  label: string
+  children: any
 }
 function Field({ label, children }: FieldProps) {
   return (
@@ -66,54 +66,54 @@ function Field({ label, children }: FieldProps) {
       <label>{label}</label>
       {children}
     </StyledField>
-  );
+  )
 }
 
 interface Point {
-  x: number;
-  y: number;
+  x: number
+  y: number
 }
 
 function center(rect: ClientRect): Point {
   return {
     x: rect.left + rect.width / 2,
-    y: rect.top + rect.height / 2
-  };
+    y: rect.top + rect.height / 2,
+  }
 }
 
 interface StateChartProps {
-  machine: StateNode<any> | string;
-  height?: number | string;
+  machine: StateNode<any> | string
+  height?: number | string
 }
 
 interface StateChartState {
-  machine: StateNode<any>;
-  current: State<any, any>;
-  preview?: State<any, any>;
-  previewEvent?: string;
-  view: string; //"definition" | "state";
-  code: string;
-  toggledStates: Record<string, boolean>;
+  machine: StateNode<any>
+  current: State<any, any>
+  preview?: State<any, any>
+  previewEvent?: string
+  view: string //"definition" | "state";
+  code: string
+  toggledStates: Record<string, boolean>
 }
 
 function toMachine(machine: StateNode<any> | string): StateNode<any> {
-  if (typeof machine !== "string") {
-    return machine;
+  if (typeof machine !== 'string') {
+    return machine
   }
 
-  const createMachine = new Function("Machine", "interpret", "XState", machine);
+  const createMachine = new Function('Machine', 'interpret', 'XState', machine)
 
-  let resultMachine: StateNode<any>;
+  let resultMachine: StateNode<any>
 
   const machineProxy = (config: any, options: any) => {
-    resultMachine = Machine(config, options);
+    resultMachine = Machine(config, options)
 
-    return resultMachine;
-  };
+    return resultMachine
+  }
 
-  createMachine(machineProxy, interpret, XState);
+  createMachine(machineProxy, interpret, XState)
 
-  return resultMachine! as StateNode<any>;
+  return resultMachine! as StateNode<any>
 }
 
 function relative(childRect: ClientRect, parentRect: ClientRect): ClientRect {
@@ -123,53 +123,53 @@ function relative(childRect: ClientRect, parentRect: ClientRect): ClientRect {
     bottom: childRect.bottom - parentRect.top,
     left: childRect.left - parentRect.left,
     width: childRect.width,
-    height: childRect.height
-  };
+    height: childRect.height,
+  }
 }
 
 const StyledVisualization = styled.div`
   max-height: inherit;
   overflow-y: scroll;
-`;
+`
 export class StateChart extends React.Component<
   StateChartProps,
   StateChartState
 > {
   state: StateChartState = (() => {
-    const machine = toMachine(this.props.machine);
+    const machine = toMachine(this.props.machine)
     // const machine = this.props.machine;
 
     return {
       current: machine.initialState,
       preview: undefined,
       previewEvent: undefined,
-      view: "definition", // or 'state'
+      view: 'definition', // or 'state'
       machine: machine,
       code:
-        typeof this.props.machine === "string"
+        typeof this.props.machine === 'string'
           ? this.props.machine
           : `Machine(${JSON.stringify(machine.definition, null, 2)})`,
-      toggledStates: {}
-    };
-  })();
+      toggledStates: {},
+    }
+  })()
   service = interpret(this.state.machine).onTransition(current => {
     this.setState({ current }, () => {
       if (this.state.previewEvent) {
         this.setState({
-          preview: this.service.nextState(this.state.previewEvent)
-        });
+          preview: this.service.nextState(this.state.previewEvent),
+        })
       }
-    });
-  });
-  svgRef = React.createRef<SVGSVGElement>();
+    })
+  })
+  svgRef = React.createRef<SVGSVGElement>()
   componentDidMount() {
-    this.service.start();
+    this.service.start()
   }
   renderView() {
-    const { view, current, machine, code } = this.state;
+    const { view, current, machine, code } = this.state
 
     switch (view) {
-      case "definition":
+      case 'definition':
         return (
           <AceEditor
             mode="javascript"
@@ -181,8 +181,8 @@ export class StateChart extends React.Component<
             width="100%"
             height="100%"
           />
-        );
-      case "state":
+        )
+      case 'state':
         return (
           <div>
             <Field label="Value">
@@ -192,94 +192,94 @@ export class StateChart extends React.Component<
               {current.actions.length ? (
                 <ul>
                   {current.actions.map(action => {
-                    return <li key={action.type}>{action.type}</li>;
+                    return <li key={action.type}>{action.type}</li>
                   })}
                 </ul>
               ) : (
-                "-"
+                '-'
               )}
             </Field>
             <Field label="Context">
               {current.context !== undefined ? (
                 <pre>{JSON.stringify(current.context, null, 2)}</pre>
               ) : (
-                "-"
+                '-'
               )}
             </Field>
           </div>
-        );
+        )
       default:
-        return null;
+        return null
     }
   }
   toggleState(id: string) {
     this.setState({
       toggledStates: {
         ...this.state.toggledStates,
-        [id]: !this.state.toggledStates[id]
-      }
-    });
+        [id]: !this.state.toggledStates[id],
+      },
+    })
   }
   updateMachine() {
-    const { code } = this.state;
+    const { code } = this.state
 
-    const machine = toMachine(code);
+    const machine = toMachine(code)
 
     this.setState(
       {
-        machine
+        machine,
       },
       () => {
-        this.service.stop();
+        this.service.stop()
         this.service = interpret(this.state.machine)
           .onTransition(current => {
             this.setState({ current }, () => {
               if (this.state.previewEvent) {
                 this.setState({
-                  preview: this.service.nextState(this.state.previewEvent)
-                });
+                  preview: this.service.nextState(this.state.previewEvent),
+                })
               }
-            });
+            })
           })
-          .start();
+          .start()
       }
-    );
+    )
   }
   render() {
-    const { current, preview, previewEvent, machine } = this.state;
+    const { current, preview, previewEvent, machine } = this.state
 
-    const edges = getEdges(machine);
+    const edges = getEdges(machine)
 
-    const stateNodes = machine.getStateNodes(current);
-    const events = new Set();
+    const stateNodes = machine.getStateNodes(current)
+    const events = new Set()
 
     stateNodes.forEach(stateNode => {
-      const potentialEvents = Object.keys(stateNode.on);
+      const potentialEvents = Object.keys(stateNode.on)
 
       potentialEvents.forEach(event => {
-        const transitions = stateNode.on[event];
+        const transitions = stateNode.on[event]
 
         transitions.forEach(transition => {
           if (transition.target !== undefined) {
-            events.add(event);
+            events.add(event)
           }
-        });
-      });
-    });
+        })
+      })
+    })
 
     return (
       <StyledStateChart
         style={{
-          height: this.props.height || "100%",
+          height: this.props.height || '100%',
           // @ts-ignore
-          "--color-border": "#dedede",
-          "--color-primary": "rgba(87, 176, 234, 1)",
-          "--color-primary-faded": "rgba(87, 176, 234, 0.5)",
-          "--color-primary-shadow": "rgba(87, 176, 234, 0.1)",
-          "--color-link": "rgba(87, 176, 234, 1)",
-          "--color-disabled": "#888",
-          "--color-edge": "rgba(0, 0, 0, 0.2)",
-          "--radius": "0.2rem"
+          '--color-border': '#dedede',
+          '--color-primary': 'rgba(87, 176, 234, 1)',
+          '--color-primary-faded': 'rgba(87, 176, 234, 0.5)',
+          '--color-primary-shadow': 'rgba(87, 176, 234, 0.1)',
+          '--color-link': 'rgba(87, 176, 234, 1)',
+          '--color-disabled': '#888',
+          '--color-edge': 'rgba(0, 0, 0, 0.2)',
+          '--radius': '0.2rem',
         }}
       >
         <StyledVisualization>
@@ -291,7 +291,7 @@ export class StateChart extends React.Component<
             onPreEvent={event =>
               this.setState({
                 preview: this.service.nextState(event),
-                previewEvent: event
+                previewEvent: event,
               })
             }
             onToggle={id => this.toggleState(id)}
@@ -305,13 +305,13 @@ export class StateChart extends React.Component<
             width="100%"
             height="100%"
             style={{
-              position: "absolute",
+              position: 'absolute',
               top: 0,
               left: 0,
               // @ts-ignore
-              "--color": "gray",
-              overflow: "visible",
-              pointerEvents: "none"
+              '--color': 'gray',
+              overflow: 'visible',
+              pointerEvents: 'none',
             }}
             ref={this.svgRef}
           >
@@ -341,86 +341,86 @@ export class StateChart extends React.Component<
             </defs>
             {edges.map(edge => {
               if (!this.svgRef.current) {
-                return;
+                return
               }
 
               const elEvent = document.querySelector(
                 `[data-id="${edge.source.id}:${edge.event}"]`
-              );
+              )
               const elSource = document.querySelector(
                 `[data-id="${edge.source.id}"]`
-              );
+              )
               const elTarget = document.querySelector(
                 `[data-id="${edge.target.id}"]`
-              );
+              )
 
               if (!elEvent || !elTarget || !elSource) {
-                return;
+                return
               }
 
               const sourceRect = relative(
                 elSource.getBoundingClientRect(),
                 this.svgRef.current.getBoundingClientRect()
-              );
+              )
               const eventRect = relative(
                 elEvent.getBoundingClientRect(),
                 this.svgRef.current.getBoundingClientRect()
-              );
+              )
               const targetRect = relative(
                 elTarget.getBoundingClientRect(),
                 this.svgRef.current.getBoundingClientRect()
-              );
-              const eventCenterPt = center(eventRect);
-              const targetCenterPt = center(targetRect);
+              )
+              const eventCenterPt = center(eventRect)
+              const targetCenterPt = center(targetRect)
 
               const start = {
                 x: eventRect.right - 5,
-                y: eventCenterPt.y + 1
-              };
-              const midpoints: Point[] = [];
-              const end = { x: targetRect.left - 4, y: targetRect.bottom };
+                y: eventCenterPt.y + 1,
+              }
+              const midpoints: Point[] = []
+              const end = { x: targetRect.left - 4, y: targetRect.bottom }
 
               if (start.y > targetRect.top && start.y < targetRect.bottom) {
-                end.y = start.y;
+                end.y = start.y
               }
               if (start.x > end.x) {
-                start.x = eventRect.right - 8;
-                start.y = eventCenterPt.y + 4;
+                start.x = eventRect.right - 8
+                start.y = eventCenterPt.y + 4
                 midpoints.push({
                   x: start.x,
-                  y: sourceRect.bottom + 10
-                });
+                  y: sourceRect.bottom + 10,
+                })
                 midpoints.push({
                   x: sourceRect.left,
-                  y: sourceRect.bottom + 10
-                });
+                  y: sourceRect.bottom + 10,
+                })
                 midpoints.push({
                   x: targetRect.right - 10,
-                  y: targetRect.bottom + 10
-                });
-                end.x = targetRect.right - 10;
-                end.y = targetRect.bottom + 4;
+                  y: targetRect.bottom + 10,
+                })
+                end.x = targetRect.right - 10
+                end.y = targetRect.bottom + 4
               }
 
               if (start.y < targetRect.top) {
-                end.y = targetRect.top;
+                end.y = targetRect.top
               }
 
               if (start.x <= targetRect.right && start.x >= targetRect.left) {
-                end.x = start.x;
+                end.x = start.x
               }
 
               const pathMidpoints = midpoints
                 .map(midpoint => {
-                  return `L ${midpoint.x},${midpoint.y}`;
+                  return `L ${midpoint.x},${midpoint.y}`
                 })
-                .join(" ");
+                .join(' ')
 
               const isHighlighted =
                 edge.event === previewEvent &&
-                current.matches(edge.source.path.join(".")) &&
+                current.matches(edge.source.path.join('.')) &&
                 preview &&
-                preview.matches(edge.target.path.join("."));
+                preview.matches(edge.target.path.join('.'))
 
               return (
                 <path
@@ -428,7 +428,7 @@ export class StateChart extends React.Component<
                     end.y
                   }`}
                   stroke={
-                    isHighlighted ? "var(--color-primary)" : "var(--color-edge)"
+                    isHighlighted ? 'var(--color-primary)' : 'var(--color-edge)'
                   }
                   strokeWidth={2}
                   fill="none"
@@ -436,24 +436,24 @@ export class StateChart extends React.Component<
                     isHighlighted ? `url(#marker-preview)` : `url(#marker)`
                   }
                 />
-              );
+              )
             })}
           </svg>
         </StyledVisualization>
         <div
           style={{
-            overflow: "scroll",
-            display: "flex",
-            flexDirection: "column"
+            overflow: 'scroll',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
           <StyledViewTabs>
-            {["definition", "state"].map(view => {
+            {['definition', 'state'].map(view => {
               return (
                 <li onClick={() => this.setState({ view })} key={view}>
                   {view}
                 </li>
-              );
+              )
             })}
           </StyledViewTabs>
           {this.renderView()}
@@ -462,6 +462,6 @@ export class StateChart extends React.Component<
           </footer>
         </div>
       </StyledStateChart>
-    );
+    )
   }
 }

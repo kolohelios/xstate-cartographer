@@ -1,3 +1,5 @@
-import { StateChart } from "./StateChart";
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
+import { App } from './App'
 
-export { StateChart };
+ReactDOM.render(React.createElement(App), document.getElementById('root'))

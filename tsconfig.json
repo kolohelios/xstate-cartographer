@@ -4,6 +4,10 @@
     "target": "es5",
     "lib": ["es6", "dom"],
     "module": "commonjs",
+    "baseUrl": ".",
+    "paths": {
+      "src": ["src"]
+    },
     "strict": true,
     "esModuleInterop": true
   }

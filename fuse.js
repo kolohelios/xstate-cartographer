@@ -12,6 +12,9 @@ const fuse = FuseBox.init({
   sourceMaps: true,
   useTypescriptCompiler: true,
   debug: true,
+  alias: {
+    src: '~',
+  },
   plugins: [
     RawPlugin(['*.js.txt']),
     StyledComponentsPlugin(),

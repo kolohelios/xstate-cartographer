@@ -14,6 +14,7 @@ import { StateChartNode } from './StateChartNode'
 import { ToolPanel } from '../ToolPanel'
 import 'brace/theme/monokai'
 import 'brace/mode/javascript'
+import { toMachine } from 'src/lib/utils'
 
 const StyledViewTabs = styled.ul`
   display: flex;
@@ -72,26 +73,6 @@ interface StateChartState {
   view: string //"definition" | "state";
   code: string
   toggledStates: Record<string, boolean>
-}
-
-function toMachine(machine: StateNode<any> | string): StateNode<any> {
-  if (typeof machine !== 'string') {
-    return machine
-  }
-
-  const createMachine = new Function('Machine', 'interpret', 'XState', machine)
-
-  let resultMachine: StateNode<any>
-
-  const machineProxy = (config: any, options: any) => {
-    resultMachine = Machine(config, options)
-
-    return resultMachine
-  }
-
-  createMachine(machineProxy, interpret, XState)
-
-  return resultMachine! as StateNode<any>
 }
 
 function relative(childRect: ClientRect, parentRect: ClientRect): ClientRect {

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Machine as _Machine, StateNode, State, EventObject } from 'xstate'
 import styled from 'styled-components'
-import { transitions, condToString } from '../../../lib/utils'
+import { friendlyEventName, transitions, condToString } from 'src/lib/utils'
 
 const StyledChildStatesToggle = styled.button`
   display: inline-block;
@@ -189,26 +189,6 @@ const StyledStateNodeAction = styled.li`
   }
 `
 
-function friendlyEventName(event: string) {
-  let match = event.match(/^xstate\.after\((\d+)\)/)
-
-  if (match) {
-    return `after ${match[1]}ms`
-  }
-
-  match = event.match(/^done\.state/)
-
-  if (match) {
-    return `(done)`
-  }
-
-  if (event === '') {
-    return '?'
-  }
-
-  return event
-}
-
 interface StateChartNodeProps {
   stateNode: StateNode
   current: State<any, any>
@@ -225,142 +205,134 @@ const StyledStateNodeHeader = styled.header`
   z-index: 1;
 `
 
-export class StateChartNode extends React.Component<StateChartNodeProps> {
-  state = {
-    toggled: this.props.toggled,
-  }
+export const StateChartNode = (props: StateChartNodeProps) => {
+  const {
+    stateNode,
+    current,
+    preview,
+    onEvent,
+    onPreEvent,
+    onExitPreEvent,
+  } = props
 
-  public render(): JSX.Element {
-    const {
-      stateNode,
-      current,
-      preview,
-      onEvent,
-      onPreEvent,
-      onExitPreEvent,
-    } = this.props
-    const isActive = current.matches(stateNode.path.join('.')) || undefined
-    const isPreview = preview
-      ? preview.matches(stateNode.path.join('.')) || undefined
-      : undefined
+  const isActive = current.matches(stateNode.path.join('.')) || undefined
+  const isPreview = preview
+    ? preview.matches(stateNode.path.join('.')) || undefined
+    : undefined
 
-    const dataType = stateNode.parent
-      ? stateNode.type
-      : `machine ${stateNode.type}`
+  const dataType = stateNode.parent
+    ? stateNode.type
+    : `machine ${stateNode.type}`
 
-    return (
-      <StyledState
-        key={stateNode.id}
-        data-id={stateNode.id}
-        data-type={dataType}
-        data-active={isActive && stateNode.parent}
-        data-preview={isPreview && stateNode.parent}
-        // data-open={this.props.toggled || undefined}
-        data-open={true}
+  return (
+    <StyledState
+      key={stateNode.id}
+      data-id={stateNode.id}
+      data-type={dataType}
+      data-active={isActive && stateNode.parent}
+      data-preview={isPreview && stateNode.parent}
+      // data-open={this.props.toggled || undefined}
+      data-open={true}
+    >
+      <StyledStateNodeHeader
+        style={{
+          // @ts-ignore
+          '--depth': stateNode.path.length,
+        }}
+        data-type-symbol={
+          ['history', 'final', 'parallel'].includes(stateNode.type)
+            ? stateNode.type.toUpperCase()
+            : undefined
+        }
       >
-        <StyledStateNodeHeader
-          style={{
-            // @ts-ignore
-            '--depth': stateNode.path.length,
-          }}
-          data-type-symbol={
-            ['history', 'final', 'parallel'].includes(stateNode.type)
-              ? stateNode.type.toUpperCase()
-              : undefined
+        <strong>{stateNode.key}</strong>
+      </StyledStateNodeHeader>
+      <StyledStateNodeActions>
+        {stateNode.definition.onEntry.map(action => {
+          const actionString = JSON.stringify(action)
+          return (
+            <StyledStateNodeAction key={actionString} data-action-type="entry">
+              {actionString}
+            </StyledStateNodeAction>
+          )
+        })}
+        {stateNode.definition.onExit.map(action => {
+          const actionString = JSON.stringify(action)
+          return (
+            <StyledStateNodeAction key={actionString} data-action-type="exit">
+              {actionString}
+            </StyledStateNodeAction>
+          )
+        })}
+      </StyledStateNodeActions>
+      <StyledEvents>
+        {transitions(stateNode).map(transition => {
+          const ownEvent = transition.event
+          if (process.env.NODE_ENV !== 'test') {
+            console.log(friendlyEventName(ownEvent))
           }
-        >
-          <strong>{stateNode.key}</strong>
-        </StyledStateNodeHeader>
-        <StyledStateNodeActions>
-          {stateNode.definition.onEntry.map(action => {
-            const actionString = JSON.stringify(action)
-            return (
-              <StyledStateNodeAction
-                key={actionString}
-                data-action-type="entry"
-              >
-                {actionString}
-              </StyledStateNodeAction>
-            )
-          })}
-          {stateNode.definition.onExit.map(action => {
-            const actionString = JSON.stringify(action)
-            return (
-              <StyledStateNodeAction key={actionString} data-action-type="exit">
-                {actionString}
-              </StyledStateNodeAction>
-            )
-          })}
-        </StyledStateNodeActions>
-        <StyledEvents>
-          {transitions(stateNode).map(transition => {
-            const ownEvent = transition.event
-            if (process.env.NODE_ENV !== 'test') {
-              console.log(friendlyEventName(ownEvent))
-            }
 
-            const disabled: boolean =
-              current.nextEvents.indexOf(ownEvent) === -1 ||
-              (!!transition.cond &&
-                typeof transition.cond === 'function' &&
-                !transition.cond(current.context, ownEvent, {}))
+          const disabled: boolean =
+            current.nextEvents.indexOf(ownEvent) === -1 ||
+            (!!transition.cond &&
+              typeof transition.cond === 'function' &&
+              !transition.cond(current.context, ownEvent, {}))
+          return (
+            <StyledEvent key={stateNode.id}>
+              <StyledEventButton
+                onClick={() => onEvent(ownEvent)}
+                onMouseOver={() => onPreEvent(ownEvent)}
+                onMouseOut={() => onExitPreEvent()}
+                disabled={disabled}
+                data-id={`${stateNode.id}:${ownEvent}`}
+              >
+                {friendlyEventName(ownEvent)}
+              </StyledEventButton>
+              {transition.cond && <div>{condToString(transition.cond)}</div>}
+              {transition.actions.map((action, i) => {
+                const actionString = JSON.stringify(action)
+                return (
+                  <StyledTransitionAction key={actionString + ':' + i}>
+                    {actionString}
+                  </StyledTransitionAction>
+                )
+              })}
+            </StyledEvent>
+          )
+        })}
+      </StyledEvents>
+      {Object.keys(stateNode.states).length ? (
+        <div className="children">
+          {Object.keys(stateNode.states || []).map(key => {
+            const childStateNode = stateNode.states[key]
+
             return (
-              <StyledEvent key={stateNode.id}>
-                <StyledEventButton
-                  onClick={() => onEvent(ownEvent)}
-                  onMouseOver={() => onPreEvent(ownEvent)}
-                  onMouseOut={() => onExitPreEvent()}
-                  disabled={disabled}
-                  data-id={`${stateNode.id}:${ownEvent}`}
-                >
-                  {friendlyEventName(ownEvent)}
-                </StyledEventButton>
-                {transition.cond && <div>{condToString(transition.cond)}</div>}
-                {transition.actions.map((action, i) => {
-                  const actionString = JSON.stringify(action)
-                  return (
-                    <StyledTransitionAction key={actionString + ':' + i}>
-                      {actionString}
-                    </StyledTransitionAction>
-                  )
-                })}
-              </StyledEvent>
+              <StateChartNode
+                toggled={props.toggledStates[childStateNode.id]}
+                stateNode={childStateNode}
+                current={current}
+                preview={preview}
+                key={childStateNode.id}
+                onEvent={onEvent}
+                onPreEvent={onPreEvent}
+                onExitPreEvent={onExitPreEvent}
+                onToggle={props.onToggle}
+                toggledStates={props.toggledStates}
+              />
             )
           })}
-        </StyledEvents>
-        {Object.keys(stateNode.states).length ? (
-          <div className="children">
-            {Object.keys(stateNode.states || []).map(key => {
-              const childStateNode = stateNode.states[key]
-
-              return (
-                <StateChartNode
-                  toggled={this.props.toggledStates[childStateNode.id]}
-                  stateNode={childStateNode}
-                  current={current}
-                  preview={preview}
-                  key={childStateNode.id}
-                  onEvent={onEvent}
-                  onPreEvent={onPreEvent}
-                  onExitPreEvent={onExitPreEvent}
-                  onToggle={this.props.onToggle}
-                  toggledStates={this.props.toggledStates}
-                />
-              )
-            })}
-            {Object.keys(stateNode.states).length > 0 ? (
-              <StyledChildStatesToggle
-                onClick={e => {
-                  e.stopPropagation()
-                  this.props.onToggle(stateNode.id)
-                }}
-              >
-                ...
-              </StyledChildStatesToggle>
-            ) : null}
-          </div>
-        ) : null}
-      </StyledState>
-    )
-  }
+          {Object.keys(stateNode.states).length > 0 ? (
+            <StyledChildStatesToggle
+              onClick={e => {
+                e.stopPropagation()
+                props.onToggle(stateNode.id)
+              }}
+            >
+              ...
+            </StyledChildStatesToggle>
+          ) : null}
+        </div>
+      ) : null}
+    </StyledState>
+  )
 }

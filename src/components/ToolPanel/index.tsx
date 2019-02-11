@@ -2,6 +2,8 @@ import * as React from 'react'
 import AceEditor from 'react-ace'
 import styled from 'styled-components'
 import { State } from 'xstate'
+import 'brace/theme/monokai'
+import 'brace/mode/typescript'
 
 interface Props {
   view: string
@@ -39,7 +41,7 @@ export const ToolPanel = (props: Props) => {
     case 'definition':
       return (
         <AceEditor
-          mode="javascript"
+          mode="typescript"
           theme="monokai"
           editorProps={{ $blockScrolling: true }}
           value={code}

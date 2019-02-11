@@ -18,7 +18,7 @@ More than simply inspiration, the starting point for this project is David Khour
 ## Current feature wish list
 
 - [ ] render children machines
-- [ ] handle TypeScript compilation
+- [X] handle TypeScript compilation
 - [ ] provide "dark mode" setting
 - [ ] use localStorage to persist statechart(s)
 - [ ] add ability to load examples as presets for exploration

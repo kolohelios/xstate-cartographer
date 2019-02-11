@@ -1,6 +1,5 @@
 import { toMachine } from '.'
 import { Machine, StateNode } from 'xstate'
-import { any } from 'prop-types'
 
 const testMachine = Machine({
   id: 'light',

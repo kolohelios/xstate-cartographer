@@ -9,6 +9,7 @@
     "monokai",
     "scxml",
     "statechart",
+    "transpiled",
     "truthy",
     "tslib",
     "xstate"

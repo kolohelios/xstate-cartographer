@@ -59,6 +59,27 @@ const StyledVisualization = styled.div`
   max-height: inherit;
   overflow-y: scroll;
 `
+
+// TODO verify that getEvents is needed
+const getEvents = (stateNodes: StateNode<any>[]) => {
+  const events = new Set()
+  stateNodes.forEach(stateNode => {
+    const potentialEvents = Object.keys(stateNode.on)
+
+    potentialEvents.forEach(event => {
+      const transitions = stateNode.on[event]
+
+      transitions.forEach(transition => {
+        if (transition.target !== undefined) {
+          events.add(event)
+        }
+      })
+    })
+  })
+
+  return events
+}
+
 export class StateChart extends React.Component<
   StateChartProps,
   StateChartState
@@ -89,7 +110,6 @@ export class StateChart extends React.Component<
       }
     })
   })
-  svgRef = React.createRef<SVGSVGElement>()
   componentDidMount() {
     this.service.start()
   }
@@ -135,21 +155,7 @@ export class StateChart extends React.Component<
     const edges = getEdges(machine)
 
     const stateNodes = machine.getStateNodes(current)
-    const events = new Set()
-
-    stateNodes.forEach(stateNode => {
-      const potentialEvents = Object.keys(stateNode.on)
-
-      potentialEvents.forEach(event => {
-        const transitions = stateNode.on[event]
-
-        transitions.forEach(transition => {
-          if (transition.target !== undefined) {
-            events.add(event)
-          }
-        })
-      })
-    })
+    const events = getEvents(stateNodes)
 
     return (
       <StyledStateChart

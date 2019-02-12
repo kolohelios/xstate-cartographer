@@ -34,7 +34,6 @@ function center(rect: ClientRect): Point {
 
 export const SVGElement = (props: Props) => {
   const { edges, previewEvent, preview, current } = props
-  // const svgRef = useRef(React.createRef<SVGSVGElement>())
   const svgRef = useRef<SVGSVGElement>(null)
 
   return (

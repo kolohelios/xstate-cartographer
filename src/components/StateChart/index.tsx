@@ -214,12 +214,7 @@ export class StateChart extends React.Component<
               )
             })}
           </StyledViewTabs>
-          <ToolPanel
-            view={this.state.view}
-            current={this.state.current}
-            code={this.state.code}
-            updateCode={this.updateCode}
-          />
+          <ToolPanel view={this.state.view} current={this.state.current} />
           <footer>
             <button onClick={() => this.updateMachine()}>Update</button>
           </footer>

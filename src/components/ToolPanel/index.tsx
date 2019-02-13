@@ -6,8 +6,6 @@ import { Editor } from './Editor'
 interface Props {
   view: string
   current: State<any, any>
-  code: string
-  updateCode: (code: string) => void
 }
 
 const StyledField = styled.div`
@@ -33,11 +31,11 @@ function Field({ label, children }: FieldProps) {
 }
 
 export const ToolPanel = (props: Props) => {
-  const { view, current, code, updateCode } = props
+  const { view, current } = props
 
   switch (view) {
     case 'definition':
-      return <Editor code={code} updateCode={updateCode} />
+      return <Editor />
     case 'state':
       return (
         <div>

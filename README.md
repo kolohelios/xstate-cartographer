@@ -24,5 +24,6 @@ More than simply inspiration, the starting point for this project is David Khour
 - [ ] add ability to load examples as presets for exploration
 - [ ] add mock API functionality for asynchronous event
 - [ ] create two-way statechart changes based on UI interaction
+- [ ] implement the PWA pattern so the visualizer can be used in no and limited bandwidth circumstances
 - [ ] create an Electron app for even more local visualization
 - [ ] add Travis CI and Coveralls testing

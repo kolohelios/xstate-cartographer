@@ -55,9 +55,17 @@ const rootMachineConfig: MachineConfig<
         onDone: {
           target: 'ready',
           actions: [
-            (context: RootMachineContext, event: any) => {
-              // TODO clearly need something here
-            },
+            assign({
+              code: (context: RootMachineContext, event: any) => event.data,
+            }),
+          ],
+        },
+        onError: {
+          target: 'ready',
+          actions: [
+            assign({
+              code: 'defaultMachine',
+            }),
           ],
         },
       },
@@ -99,7 +107,7 @@ const rootMachineOptions: MachineOptions<
   },
 }
 
-const RootMachine = Machine<
+export const RootMachine = Machine<
   RootMachineContext,
   RootMachineStateSchema,
   RootMachineEvent

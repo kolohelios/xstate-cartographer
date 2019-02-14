@@ -4,6 +4,7 @@ import TestRenderer from 'react-test-renderer'
 
 // mocking react-ace or we get a warning from brace/index.js:3999, "Could not load worker TypeError: URL.createObjectURL is not a function"
 jest.mock('react-ace')
+jest.mock('src/sampleMachines/defaultMachine.js.txt', () => {})
 
 const simpleStateChart = `
 const lightMachine = Machine({

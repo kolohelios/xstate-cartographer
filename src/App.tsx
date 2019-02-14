@@ -1,18 +1,31 @@
 import * as React from 'react'
+import { useContext } from 'react'
 import { StateChart } from './components/StateChart'
 import { Layout } from './components/Layout'
-import { RootProvider } from './machines/Root'
+import { RootProvider, RootContext } from './machines/Root'
 
-const rawDefaultMachineText = require('./sampleMachines/defaultMachine.js.txt')
+// TODO HACK we shouldn't need to bring in the defaultMachine here
+import * as rawDefaultMachineText from './sampleMachines/defaultMachine.js.txt'
+const defaultMachine = rawDefaultMachineText.default
 
-const defaultMachine = Object.values(rawDefaultMachineText).join('')
+const WrappedApp = () => {
+  const rootContext = useContext(RootContext)
+  // TODO HACK eliminate the failover on the next line
+  const machine = rootContext.code ? rootContext.code : defaultMachine
+
+  return (
+    <RootProvider>
+      <Layout>
+        <StateChart machine={machine} height={'calc(100vh - 70px)'} />
+      </Layout>
+    </RootProvider>
+  )
+}
 
 export const App = () => {
   return (
     <RootProvider>
-      <Layout>
-        <StateChart machine={defaultMachine} height={'calc(100vh - 70px)'} />
-      </Layout>
+      <WrappedApp />
     </RootProvider>
   )
 }

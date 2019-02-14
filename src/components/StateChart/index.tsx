@@ -86,7 +86,6 @@ export class StateChart extends React.Component<
 > {
   state: StateChartState = (() => {
     const machine = toMachine(this.props.machine)
-    // const machine = this.props.machine;
 
     return {
       current: machine.initialState,
@@ -122,9 +121,9 @@ export class StateChart extends React.Component<
     })
   }
   updateMachine() {
-    const { code } = this.state
+    const machineCode = this.props.machine
 
-    const machine = toMachine(code)
+    const machine = toMachine(machineCode)
 
     this.setState(
       {
@@ -154,8 +153,8 @@ export class StateChart extends React.Component<
 
     const edges = getEdges(machine)
 
-    const stateNodes = machine.getStateNodes(current)
-    const events = getEvents(stateNodes)
+    // const stateNodes = machine.getStateNodes(current)
+    // const events = getEvents(stateNodes)
 
     return (
       <StyledStateChart

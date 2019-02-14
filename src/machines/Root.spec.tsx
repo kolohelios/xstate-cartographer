@@ -1,6 +1,11 @@
 import { RootMachine } from './Root'
 import { interpret } from 'xstate'
 
+jest.mock(
+  'src/sampleMachines/defaultMachine.js.txt',
+  () => 'mocked default code'
+)
+
 const testSuccessfulRootMachine = RootMachine.withConfig({
   services: {
     getMachines: () =>
@@ -46,7 +51,7 @@ describe('RootMachine', () => {
     interpret(testFailedRootMachine)
       .onTransition(state => {
         if (state.matches('ready')) {
-          expect(state.context.code).toBe('defaultMachine')
+          expect(state.context.code).toBe('mocked default code')
           done()
         }
       })

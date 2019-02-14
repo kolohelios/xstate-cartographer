@@ -9,6 +9,9 @@ import {
 } from 'xstate'
 import { toMachine } from 'src/lib/utils'
 
+import * as rawText from '../sampleMachines/defaultMachine.js.txt'
+const defaultMachine = rawText.default
+
 enum RootMachineEvents {
   UpdateCode = 'UPDATE_CODE',
 }
@@ -31,8 +34,8 @@ const getMachines = () =>
   new Promise((fulfilled, rejected) => {
     try {
       const serializedMachines = localStorage.getItem('machines')
-      const machines = JSON.parse(serializedMachines || '{}')
-      fulfilled(machines)
+      const machines = JSON.parse(serializedMachines || `["${defaultMachine}"]`)
+      fulfilled(machines[0])
     } catch (error) {
       rejected(error)
     }
@@ -64,7 +67,7 @@ const rootMachineConfig: MachineConfig<
           target: 'ready',
           actions: [
             assign({
-              code: 'defaultMachine',
+              code: () => defaultMachine,
             }),
           ],
         },
@@ -82,11 +85,23 @@ const rootMachineConfig: MachineConfig<
               ) => {
                 console.log(context, event)
                 try {
+                  const isEmpty = event.data === ''
+                  if (isEmpty) {
+                    console.info('is empty')
+                    return defaultMachine
+                  }
                   const isMachine = toMachine(event.data) instanceof StateNode
+                  if (isMachine) {
+                    console.info('is a valid machine')
+                    return event.data
+                  } else {
+                    console.info('is not a valid machine')
+                    return defaultMachine
+                  }
                 } catch (error) {
-                  console.info('invalid')
+                  console.info('invalid JavaScript or TypeScript')
+                  return defaultMachine
                 }
-                return event.data
               },
             }),
           ],
@@ -121,20 +136,16 @@ export const updateCode = (updatedCode: string) =>
     data: updatedCode,
   })
 
-const RootContext = React.createContext(RootMachine.initialState.context)
-
-export const RootConsumer = RootContext.Consumer
+export const RootContext = React.createContext(RootMachine.initialState.context)
 
 interface Props {
   children: React.ReactNode
 }
 
 export const RootProvider = (props: Props) => {
-  const [state, setState] = React.useState(
-    rootMachineService.initialState.context
-  )
-  rootMachineService.onTransition(({ context }) => {
-    setState(context)
+  const [state, setState] = React.useState(RootMachine.initialState.context)
+  rootMachineService.onTransition(newState => {
+    setState(newState.context)
   })
 
   return (

@@ -17,8 +17,10 @@ More than simply inspiration, the starting point for this project is David Khour
 
 ## Current feature wish list
 
+- [ ] add versioning strategy for statecharts
+- [ ] add cloud storage system (this needs some thought)
 - [ ] render children machines
-- [X] handle TypeScript compilation
+- [x] handle TypeScript compilation
 - [ ] provide "dark mode" setting
 - [ ] use localStorage to persist statechart(s)
 - [ ] add ability to load examples as presets for exploration
@@ -26,4 +28,4 @@ More than simply inspiration, the starting point for this project is David Khour
 - [ ] create two-way statechart changes based on UI interaction
 - [ ] implement the PWA pattern so the visualizer can be used in no and limited bandwidth circumstances
 - [ ] create an Electron app for even more local visualization
-- [X] add Travis CI and Coveralls testing
+- [x] add Travis CI and Coveralls testing

@@ -20,6 +20,7 @@ interface RootMachineStateSchema {
   states: {
     loading: {}
     ready: {}
+    checkCode: {}
     valid: {}
     invalid: {}
   }
@@ -28,9 +29,11 @@ interface RootMachineStateSchema {
 type RootMachineEvent = { type: RootMachineEvents.UpdateCode; data: string }
 
 interface RootMachineContext {
-  code: string
+  editorCode: string
+  machineCode: string
 }
 const getMachines = () =>
+  // this isn't asynchronous (yet), but it lets us use onDone/onError
   new Promise((fulfilled, rejected) => {
     try {
       const serializedMachines = localStorage.getItem('machines')
@@ -41,6 +44,25 @@ const getMachines = () =>
     }
   })
 
+const checkCode = (context: RootMachineContext, event: any) =>
+  // this isn't asynchronous, and probably never will be, but it lets us use onDone/onError
+  new Promise((fulfilled, rejected) => {
+    try {
+      const isEmpty = event.data === ''
+      if (isEmpty) {
+        rejected('isEmpty')
+      }
+      const isMachine = toMachine(event.data) instanceof StateNode
+      if (isMachine) {
+        fulfilled('isValid')
+      } else {
+        rejected('isNotValidMachine')
+      }
+    } catch (error) {
+      rejected('isNotValidJavaScriptOrTypeScript')
+    }
+  })
+
 const rootMachineConfig: MachineConfig<
   RootMachineContext,
   RootMachineStateSchema,
@@ -48,7 +70,8 @@ const rootMachineConfig: MachineConfig<
 > = {
   id: 'app',
   context: {
-    code: '',
+    editorCode: '',
+    machineCode: '',
   },
   initial: 'loading',
   states: {
@@ -59,7 +82,10 @@ const rootMachineConfig: MachineConfig<
           target: 'ready',
           actions: [
             assign({
-              code: (context: RootMachineContext, event: any) => event.data,
+              editorCode: (context: RootMachineContext, event: any) =>
+                event.data,
+              machineCode: (context: RootMachineContext, event: any) =>
+                event.data,
             }),
           ],
         },
@@ -67,7 +93,8 @@ const rootMachineConfig: MachineConfig<
           target: 'ready',
           actions: [
             assign({
-              code: () => defaultMachine,
+              editorCode: () => defaultMachine,
+              machineCode: () => defaultMachine,
             }),
           ],
         },
@@ -76,39 +103,46 @@ const rootMachineConfig: MachineConfig<
     ready: {
       on: {
         UPDATE_CODE: {
+          target: 'checkCode',
           actions: [
             assign({
-              code: (
+              editorCode: (
                 context: RootMachineContext,
                 // TODO HACK we need typing for events where we can pass it a specific type of event so we don't use any here
                 event: any
               ) => {
                 console.log(context, event)
-                try {
-                  const isEmpty = event.data === ''
-                  if (isEmpty) {
-                    console.info('is empty')
-                    return defaultMachine
-                  }
-                  const isMachine = toMachine(event.data) instanceof StateNode
-                  if (isMachine) {
-                    console.info('is a valid machine')
-                    return event.data
-                  } else {
-                    console.info('is not a valid machine')
-                    return defaultMachine
-                  }
-                } catch (error) {
-                  console.info('invalid JavaScript or TypeScript')
-                  return defaultMachine
-                }
+                return event.data
               },
             }),
           ],
         },
       },
     },
-    valid: {},
+    checkCode: {
+      invoke: {
+        src: 'checkCode',
+        onDone: 'valid',
+        onError: {
+          target: 'ready',
+          actions: [
+            (context: RootMachineContext, event: any) => {
+              console.log(context, event)
+            },
+          ],
+        },
+      },
+    },
+    valid: {
+      on: {
+        '': {
+          target: 'ready',
+          actions: [
+            assign({ machineCode: (context: any) => context.editorCode }),
+          ],
+        },
+      },
+    },
     invalid: {},
   },
 }
@@ -119,6 +153,7 @@ const rootMachineOptions: MachineOptions<
 > = {
   services: {
     getMachines,
+    checkCode,
   },
 }
 

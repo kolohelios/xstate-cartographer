@@ -13,7 +13,7 @@ export const Editor = () => {
       mode="typescript"
       theme="monokai"
       editorProps={{ $blockScrolling: true }}
-      value={rootContext.code}
+      value={rootContext.editorCode}
       onChange={value => updateCode(value)}
       setOptions={{ tabSize: 2 }}
       width="100%"

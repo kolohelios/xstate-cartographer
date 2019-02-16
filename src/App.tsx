@@ -11,7 +11,9 @@ const defaultMachine = rawDefaultMachineText.default
 const WrappedApp = () => {
   const rootContext = useContext(RootContext)
   // TODO HACK eliminate the failover on the next line
-  const machine = rootContext.code ? rootContext.code : defaultMachine
+  const machine = rootContext.machineCode
+    ? rootContext.machineCode
+    : defaultMachine
 
   return (
     <RootProvider>

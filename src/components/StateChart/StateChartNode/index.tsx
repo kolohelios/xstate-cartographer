@@ -249,7 +249,9 @@ export const StateChartNode = (props: StateChartNodeProps) => {
       </StyledStateNodeHeader>
       <StyledStateNodeActions>
         {stateNode.definition.onEntry.map(action => {
-          const actionString = JSON.stringify(action)
+          const actionString = action.type
+            ? action.type
+            : JSON.stringify(action)
           return (
             <StyledStateNodeAction key={actionString} data-action-type="entry">
               {actionString}
@@ -290,7 +292,9 @@ export const StateChartNode = (props: StateChartNodeProps) => {
               </StyledEventButton>
               {transition.cond && <div>{condToString(transition.cond)}</div>}
               {transition.actions.map((action, i) => {
-                const actionString = JSON.stringify(action)
+                const actionString = action.type
+                  ? action.type
+                  : JSON.stringify(action)
                 return (
                   <StyledTransitionAction key={actionString + ':' + i}>
                     {actionString}

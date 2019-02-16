@@ -6,6 +6,7 @@ jest.mock(
   () => 'mocked default code'
 )
 
+// TODO check machineCode values in tests
 const testSuccessfulRootMachine = RootMachine.withConfig({
   services: {
     getMachines: () =>
@@ -29,7 +30,7 @@ describe('RootMachine', () => {
     interpret(testSuccessfulRootMachine)
       .onTransition(state => {
         if (state.matches('loading')) {
-          expect(state.context.code).toBe('')
+          expect(state.context.editorCode).toBe('')
           done()
         }
       })
@@ -40,7 +41,7 @@ describe('RootMachine', () => {
     interpret(testSuccessfulRootMachine)
       .onTransition(state => {
         if (state.matches('ready')) {
-          expect(state.context.code).toBe('some code')
+          expect(state.context.editorCode).toBe('some code')
           done()
         }
       })
@@ -51,7 +52,7 @@ describe('RootMachine', () => {
     interpret(testFailedRootMachine)
       .onTransition(state => {
         if (state.matches('ready')) {
-          expect(state.context.code).toBe('mocked default code')
+          expect(state.context.editorCode).toBe('mocked default code')
           done()
         }
       })

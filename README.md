@@ -18,6 +18,7 @@ More than simply inspiration, the starting point for this project is David Khour
 ## Current feature wish list
 
 - [ ] add versioning strategy for statecharts
+- [ ] create statechart sharing process through URLs
 - [ ] add cloud storage system (this needs some thought)
 - [ ] render children machines
 - [x] handle TypeScript compilation

@@ -2,12 +2,18 @@
 
 exports[`Header renders correctly 1`] = `
 <div
-  className="sc-bdVaJa hFffZV"
+  className="sc-bdVaJa cqMTxD"
 >
   <p
     className="sc-bwzfXH iJxcRz"
   >
     XState Cartographer
   </p>
+  <button
+    className="sc-htpNat cZppGo"
+    onClick={[Function]}
+  >
+    Update Chart
+  </button>
 </div>
 `;

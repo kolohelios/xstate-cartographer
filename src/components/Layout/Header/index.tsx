@@ -1,8 +1,11 @@
 import * as React from 'react'
 import styled from 'styled-components'
+import { updateStateChart } from 'src/machines/App/provider'
 
 const HeaderContainer = styled.div`
   display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   background-color: #eaeaea;
   padding: 0;
   margin: 0;
@@ -15,10 +18,17 @@ const HeaderText = styled.p`
   margin-left: 20px;
 `
 
+const Button = styled.button`
+  margin-right: 20px;
+  height: 20px;
+  align-self: center;
+`
+
 export const Header = () => {
   return (
     <HeaderContainer>
       <HeaderText>XState Cartographer</HeaderText>
+      <Button onClick={updateStateChart}>Update Chart</Button>
     </HeaderContainer>
   )
 }

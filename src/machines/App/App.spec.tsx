@@ -1,4 +1,4 @@
-import { RootMachine } from './Root'
+import { AppMachine } from '.'
 import { interpret } from 'xstate'
 
 jest.mock(
@@ -7,7 +7,7 @@ jest.mock(
 )
 
 // TODO check machineCode values in tests
-const testSuccessfulRootMachine = RootMachine.withConfig({
+const testSuccessfulRootMachine = AppMachine.withConfig({
   services: {
     getMachines: () =>
       new Promise((fulfilled, rejected) => {
@@ -16,7 +16,7 @@ const testSuccessfulRootMachine = RootMachine.withConfig({
   },
 })
 
-const testFailedRootMachine = RootMachine.withConfig({
+const testFailedRootMachine = AppMachine.withConfig({
   services: {
     getMachines: () =>
       new Promise((fulfilled, rejected) => {
@@ -31,6 +31,7 @@ describe('RootMachine', () => {
       .onTransition(state => {
         if (state.matches('loading')) {
           expect(state.context.editorCode).toBe('')
+          expect(state.context.machineCode).toBe('')
           done()
         }
       })
@@ -42,6 +43,7 @@ describe('RootMachine', () => {
       .onTransition(state => {
         if (state.matches('ready')) {
           expect(state.context.editorCode).toBe('some code')
+          expect(state.context.machineCode).toBe('some code')
           done()
         }
       })
@@ -53,6 +55,7 @@ describe('RootMachine', () => {
       .onTransition(state => {
         if (state.matches('ready')) {
           expect(state.context.editorCode).toBe('mocked default code')
+          expect(state.context.machineCode).toBe('mocked default code')
           done()
         }
       })

@@ -1,22 +1,22 @@
-import * as React from 'react'
-import {
-  interpret,
-  Machine,
-  assign,
-  StateNode,
-  MachineConfig,
-  MachineOptions,
-} from 'xstate'
 import { toMachine } from 'src/lib/utils'
+import {
+  MachineConfig,
+  StateNode,
+  assign,
+  MachineOptions,
+  Machine,
+  interpret,
+} from 'xstate'
 
-import * as rawText from '../sampleMachines/defaultMachine.js.txt'
+import * as rawText from '../../sampleMachines/defaultMachine.js.txt'
 const defaultMachine = rawText.default
 
-enum RootMachineEvents {
+export enum AppMachineEvents {
   UpdateCode = 'UPDATE_CODE',
+  UpdateStateChart = 'UPDATE_STATE_CHART',
 }
 
-interface RootMachineStateSchema {
+interface AppMachineStateSchema {
   states: {
     loading: {}
     ready: {}
@@ -26,12 +26,16 @@ interface RootMachineStateSchema {
   }
 }
 
-type RootMachineEvent = { type: RootMachineEvents.UpdateCode; data: string }
-
-interface RootMachineContext {
+interface AppMachineContext {
   editorCode: string
   machineCode: string
+  stagedMachineCode: string
 }
+
+type AppMachineEvent =
+  | { type: AppMachineEvents.UpdateCode; data: string }
+  | { type: AppMachineEvents.UpdateStateChart }
+
 const getMachines = () =>
   // this isn't asynchronous (yet), but it lets us use onDone/onError
   new Promise((fulfilled, rejected) => {
@@ -44,7 +48,7 @@ const getMachines = () =>
     }
   })
 
-const checkCode = (context: RootMachineContext, event: any) =>
+const checkCode = (context: AppMachineContext, event: any) =>
   // this isn't asynchronous, and probably never will be, but it lets us use onDone/onError
   new Promise((fulfilled, rejected) => {
     try {
@@ -63,15 +67,16 @@ const checkCode = (context: RootMachineContext, event: any) =>
     }
   })
 
-const rootMachineConfig: MachineConfig<
-  RootMachineContext,
-  RootMachineStateSchema,
-  RootMachineEvent
+const appMachineConfig: MachineConfig<
+  AppMachineContext,
+  AppMachineStateSchema,
+  AppMachineEvent
 > = {
   id: 'app',
   context: {
     editorCode: '',
     machineCode: '',
+    stagedMachineCode: '',
   },
   initial: 'loading',
   states: {
@@ -82,9 +87,11 @@ const rootMachineConfig: MachineConfig<
           target: 'ready',
           actions: [
             assign({
-              editorCode: (context: RootMachineContext, event: any) =>
+              editorCode: (context: AppMachineContext, event: any) =>
                 event.data,
-              machineCode: (context: RootMachineContext, event: any) =>
+              machineCode: (context: AppMachineContext, event: any) =>
+                event.data,
+              stagedMachineCode: (context: AppMachineContext, event: any) =>
                 event.data,
             }),
           ],
@@ -95,6 +102,7 @@ const rootMachineConfig: MachineConfig<
             assign({
               editorCode: () => defaultMachine,
               machineCode: () => defaultMachine,
+              stagedMachineCode: () => defaultMachine,
             }),
           ],
         },
@@ -102,18 +110,26 @@ const rootMachineConfig: MachineConfig<
     },
     ready: {
       on: {
-        UPDATE_CODE: {
+        [AppMachineEvents.UpdateCode]: {
           target: 'checkCode',
           actions: [
             assign({
               editorCode: (
-                context: RootMachineContext,
+                context: AppMachineContext,
                 // TODO HACK we need typing for events where we can pass it a specific type of event so we don't use any here
                 event: any
               ) => {
                 console.log(context, event)
                 return event.data
               },
+            }),
+          ],
+        },
+        [AppMachineEvents.UpdateStateChart]: {
+          target: 'ready',
+          actions: [
+            assign({
+              machineCode: (context: any) => context.stagedMachineCode,
             }),
           ],
         },
@@ -126,7 +142,7 @@ const rootMachineConfig: MachineConfig<
         onError: {
           target: 'ready',
           actions: [
-            (context: RootMachineContext, event: any) => {
+            (context: AppMachineContext, event: any) => {
               console.log(context, event)
             },
           ],
@@ -138,7 +154,7 @@ const rootMachineConfig: MachineConfig<
         '': {
           target: 'ready',
           actions: [
-            assign({ machineCode: (context: any) => context.editorCode }),
+            assign({ stagedMachineCode: (context: any) => context.editorCode }),
           ],
         },
       },
@@ -147,43 +163,17 @@ const rootMachineConfig: MachineConfig<
   },
 }
 
-const rootMachineOptions: MachineOptions<
-  RootMachineContext,
-  RootMachineEvent
-> = {
+const appMachineOptions: MachineOptions<AppMachineContext, AppMachineEvent> = {
   services: {
-    getMachines,
     checkCode,
+    getMachines,
   },
 }
 
-export const RootMachine = Machine<
-  RootMachineContext,
-  RootMachineStateSchema,
-  RootMachineEvent
->(rootMachineConfig, rootMachineOptions)
+export const AppMachine = Machine<
+  AppMachineContext,
+  AppMachineStateSchema,
+  AppMachineEvent
+>(appMachineConfig, appMachineOptions)
 
-const rootMachineService = interpret(RootMachine).start()
-
-export const updateCode = (updatedCode: string) =>
-  rootMachineService.send({
-    type: RootMachineEvents.UpdateCode,
-    data: updatedCode,
-  })
-
-export const RootContext = React.createContext(RootMachine.initialState.context)
-
-interface Props {
-  children: React.ReactNode
-}
-
-export const RootProvider = (props: Props) => {
-  const [state, setState] = React.useState(RootMachine.initialState.context)
-  rootMachineService.onTransition(newState => {
-    setState(newState.context)
-  })
-
-  return (
-    <RootContext.Provider value={state}>{props.children}</RootContext.Provider>
-  )
-}
+export const appMachineService = interpret(AppMachine).start()

@@ -7,23 +7,7 @@ import { StateChartNode } from './StateChartNode'
 import { ToolPanel } from '../ToolPanel'
 import { toMachine } from 'src/lib/utils'
 import { SVGElement } from './SVGElement'
-
-const StyledViewTabs = styled.ul`
-  display: flex;
-  width: 100%;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: stretch;
-  margin: 0;
-  padding: 0;
-  height: 1rem;
-
-  > li {
-    padding: 0 0.5rem;
-    text-align: center;
-    list-style: none;
-  }
-`
+import SplitPane from 'react-split-pane'
 
 const StyledStateChart = styled.div`
   display: grid;
@@ -171,53 +155,56 @@ export class StateChart extends React.Component<
           '--radius': '0.2rem',
         }}
       >
-        <StyledVisualization>
-          <StateChartNode
-            stateNode={this.state.machine}
-            current={current}
-            preview={preview}
-            onEvent={this.service.send.bind(this)}
-            onPreEvent={event =>
-              this.setState({
-                preview: this.service.nextState(event),
-                previewEvent: event,
-              })
-            }
-            onToggle={id => this.toggleState(id)}
-            onExitPreEvent={() =>
-              this.setState({ preview: undefined, previewEvent: undefined })
-            }
-            toggledStates={this.state.toggledStates}
-            toggled={true}
-          />
-          <SVGElement
-            edges={edges}
-            previewEvent={previewEvent}
-            current={current}
-            preview={preview}
-          />
-        </StyledVisualization>
-        <div
-          style={{
-            overflow: 'scroll',
-            display: 'flex',
-            flexDirection: 'column',
+        <SplitPane
+          split="vertical"
+          minSize={350}
+          primary="second"
+          onDragFinished={() => this.setState({})}
+          resizerStyle={{
+            backgroundColor: '#000',
+            width: 11,
+            cursor: 'ew-resize',
           }}
         >
-          <StyledViewTabs>
-            {['definition', 'state'].map(view => {
-              return (
-                <li onClick={() => this.setState({ view })} key={view}>
-                  {view}
-                </li>
-              )
-            })}
-          </StyledViewTabs>
+          <StyledVisualization>
+            <StateChartNode
+              stateNode={this.state.machine}
+              current={current}
+              preview={preview}
+              onEvent={this.service.send.bind(this)}
+              onPreEvent={event =>
+                this.setState({
+                  preview: this.service.nextState(event),
+                  previewEvent: event,
+                })
+              }
+              onToggle={id => this.toggleState(id)}
+              onExitPreEvent={() =>
+                this.setState({ preview: undefined, previewEvent: undefined })
+              }
+              toggledStates={this.state.toggledStates}
+              toggled={true}
+            />
+            <SVGElement
+              edges={edges}
+              previewEvent={previewEvent}
+              current={current}
+              preview={preview}
+            />
+          </StyledVisualization>
+          {/* <div
+            style={{
+              overflow: 'scroll',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          > */}
           <ToolPanel view={this.state.view} current={this.state.current} />
           <footer>
             <button onClick={() => this.updateMachine()}>Update</button>
           </footer>
-        </div>
+          {/* </div> */}
+        </SplitPane>
       </StyledStateChart>
     )
   }

@@ -10,6 +10,8 @@ const HeaderContainer = styled.div`
   padding: 0;
   margin: 0;
   height: 50px;
+  position: fixed;
+  width: 100vw;
 `
 
 const HeaderText = styled.p`

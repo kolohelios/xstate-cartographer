@@ -12,16 +12,19 @@ export const updateStateChart = () =>
     type: AppMachineEvents.UpdateStateChart,
   })
 
-export const AppContext = React.createContext(AppMachine.initialState.context)
+export const AppContext = React.createContext(
+  appMachineService.initialState.context
+)
 
 interface Props {
   children: React.ReactNode
 }
 
 export const AppProvider = (props: Props) => {
-  const [state, setState] = React.useState(AppMachine.initialState.context)
+  const [state, setState] = React.useState(
+    appMachineService.initialState.context
+  )
   appMachineService.onTransition(newState => {
-    console.log(newState)
     setState(newState.context)
   })
 

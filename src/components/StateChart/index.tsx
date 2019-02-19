@@ -1,13 +1,24 @@
 import * as React from 'react'
+import { useMemo, useState } from 'react'
 import styled from 'styled-components'
 import { interpret, Interpreter } from 'xstate/lib/interpreter'
-import { Machine as _Machine, StateNode, State } from 'xstate'
+import {
+  Machine as _Machine,
+  StateNode,
+  State,
+  OmniEventObject,
+  EventObject,
+} from 'xstate'
 import { getEdges } from 'xstate/lib/graph'
 import { StateChartNode } from './StateChartNode'
 import { ToolPanel } from '../ToolPanel'
 import { toMachine } from 'src/lib/utils'
 import { SVGElement } from './SVGElement'
 import SplitPane from 'react-split-pane'
+import { AppContext } from 'src/machines/App/provider'
+
+import * as rawText from '../../sampleMachines/defaultMachine.js.txt'
+const defaultMachine = rawText.default
 
 const StyledStateChart = styled.div`
   display: grid;
@@ -25,8 +36,8 @@ const StyledStateChart = styled.div`
 `
 
 interface StateChartProps {
-  machine: StateNode<any> | string
   height?: number | string
+  machine: StateNode<any>
 }
 
 interface StateChartState {
@@ -34,7 +45,6 @@ interface StateChartState {
   current: State<any, any>
   preview?: State<any, any>
   previewEvent?: string
-  view: string //"definition" | "state";
   code: string
   toggledStates: Record<string, boolean>
 }
@@ -64,148 +74,133 @@ const getEvents = (stateNodes: StateNode<any>[]) => {
   return events
 }
 
-export class StateChart extends React.Component<
-  StateChartProps,
-  StateChartState
-> {
-  state: StateChartState = (() => {
-    const machine = toMachine(this.props.machine)
+interface StateChartWrapperProps {
+  height?: number | string
+}
 
-    return {
-      current: machine.initialState,
-      preview: undefined,
-      previewEvent: undefined,
-      view: 'definition', // or 'state'
-      machine: machine,
-      code:
-        typeof this.props.machine === 'string'
-          ? this.props.machine
-          : `Machine(${JSON.stringify(machine.definition, null, 2)})`,
-      toggledStates: {},
-    }
-  })()
-  service = interpret(this.state.machine).onTransition(current => {
-    this.setState({ current }, () => {
-      if (this.state.previewEvent) {
-        this.setState({
-          preview: this.service.nextState(this.state.previewEvent),
-        })
+export const StateChartWrapper = (props: StateChartWrapperProps) => {
+  const appContext = React.useContext(AppContext)
+  const [machine, setMachine] = useState(defaultMachine)
+
+  // setMachine(appContext.stagedMachineCode)
+
+  return <StateChart machine={machine} />
+}
+
+export const StateChart = (props: StateChartProps) => {
+  const initialMachine = toMachine(props.machine)
+
+  const [current, setCurrent] = useState(initialMachine.initialState)
+  const [preview, setPreview] = useState<
+    State<any, OmniEventObject<EventObject>> | undefined
+  >(undefined)
+  const [previewEvent, setPreviewEvent] = useState<string | undefined>(
+    undefined
+  )
+  const [machine, setMachine] = useState(initialMachine)
+  const [toggledStates, setToggledStates] = useState<Record<string, boolean>>(
+    {}
+  )
+
+  const service = useMemo(() => {
+    const service = interpret(initialMachine)
+    service.onTransition(newCurrent => {
+      setCurrent(newCurrent)
+
+      if (previewEvent) {
+        const newPreview = service.nextState(previewEvent)
+
+        setPreview(newPreview)
       }
     })
-  })
-  componentDidMount() {
-    this.service.start()
-  }
-  toggleState(id: string) {
-    this.setState({
-      toggledStates: {
-        ...this.state.toggledStates,
-        [id]: !this.state.toggledStates[id],
-      },
+    service.start()
+    return service
+  }, [props.machine])
+
+  // React.useEffect(() => {
+  //   service.stop()
+  //   service.onTransition(newCurrent => {
+  //     console.log('onTransition')
+  //     setCurrent(newCurrent)
+
+  //     if (previewEvent) {
+  //       const newPreview = service.nextState(previewEvent)
+
+  //       setPreview(newPreview)
+  //     }
+  //   })
+
+  //   return () => {
+  //     service.stop()
+  //   }
+  // }, [props.machine])
+
+  const toggleState = (id: string) => {
+    setToggledStates({
+      ...toggledStates,
+      [id]: !toggledStates[id],
     })
   }
-  updateMachine() {
-    const machineCode = this.props.machine
 
-    const machine = toMachine(machineCode)
+  const edges = getEdges(machine)
 
-    this.setState(
-      {
-        machine,
-      },
-      () => {
-        this.service.stop()
-        this.service = interpret(this.state.machine)
-          .onTransition(current => {
-            this.setState({ current }, () => {
-              if (this.state.previewEvent) {
-                this.setState({
-                  preview: this.service.nextState(this.state.previewEvent),
-                })
-              }
-            })
-          })
-          .start()
-      }
-    )
-  }
-  updateCode = (code: string) => {
-    this.setState({ code })
-  }
-  render() {
-    const { current, preview, previewEvent, machine } = this.state
-
-    const edges = getEdges(machine)
-
-    // const stateNodes = machine.getStateNodes(current)
-    // const events = getEvents(stateNodes)
-
-    return (
-      <StyledStateChart
-        style={{
-          height: this.props.height || '100%',
-          // @ts-ignore
-          '--color-border': '#dedede',
-          '--color-primary': 'rgba(87, 176, 234, 1)',
-          '--color-primary-faded': 'rgba(87, 176, 234, 0.5)',
-          '--color-primary-shadow': 'rgba(87, 176, 234, 0.1)',
-          '--color-link': 'rgba(87, 176, 234, 1)',
-          '--color-disabled': '#888',
-          '--color-edge': 'rgba(0, 0, 0, 0.2)',
-          '--radius': '0.2rem',
+  return (
+    <StyledStateChart
+      style={{
+        height: props.height || '100%',
+        // @ts-ignore
+        '--color-border': '#dedede',
+        '--color-primary': 'rgba(87, 176, 234, 1)',
+        '--color-primary-faded': 'rgba(87, 176, 234, 0.5)',
+        '--color-primary-shadow': 'rgba(87, 176, 234, 0.1)',
+        '--color-link': 'rgba(87, 176, 234, 1)',
+        '--color-disabled': '#888',
+        '--color-edge': 'rgba(0, 0, 0, 0.2)',
+        '--radius': '0.2rem',
+      }}
+    >
+      <SplitPane
+        split="vertical"
+        minSize={350}
+        primary="second"
+        resizerStyle={{
+          backgroundColor: '#000',
+          width: 11,
+          cursor: 'ew-resize',
         }}
       >
-        <SplitPane
-          split="vertical"
-          minSize={350}
-          primary="second"
-          onDragFinished={() => this.setState({})}
-          resizerStyle={{
-            backgroundColor: '#000',
-            width: 11,
-            cursor: 'ew-resize',
-          }}
-        >
-          <StyledVisualization>
-            <StateChartNode
-              stateNode={this.state.machine}
-              current={current}
-              preview={preview}
-              onEvent={this.service.send.bind(this)}
-              onPreEvent={event =>
-                this.setState({
-                  preview: this.service.nextState(event),
-                  previewEvent: event,
-                })
-              }
-              onToggle={id => this.toggleState(id)}
-              onExitPreEvent={() =>
-                this.setState({ preview: undefined, previewEvent: undefined })
-              }
-              toggledStates={this.state.toggledStates}
-              toggled={true}
-            />
-            <SVGElement
-              edges={edges}
-              previewEvent={previewEvent}
-              current={current}
-              preview={preview}
-            />
-          </StyledVisualization>
-          {/* <div
-            style={{
-              overflow: 'scroll',
-              display: 'flex',
-              flexDirection: 'column',
+        <StyledVisualization>
+          <StateChartNode
+            stateNode={machine}
+            current={current}
+            preview={preview}
+            onEvent={e => {
+              console.log(e, service)
+              service.send(e)
             }}
-          > */}
-          <ToolPanel view={this.state.view} current={this.state.current} />
-          <footer>
-            <button onClick={() => this.updateMachine()}>Update</button>
-          </footer>
-          {/* </div> */}
-        </SplitPane>
-      </StyledStateChart>
-    )
-  }
+            onPreEvent={(event: string) => {
+              if (event) {
+                setPreview(service.nextState(event))
+                setPreviewEvent(event)
+              }
+            }}
+            onToggle={id => toggleState(id)}
+            onExitPreEvent={() => {
+              setPreview(undefined)
+              setPreviewEvent(undefined)
+            }}
+            toggledStates={toggledStates}
+            toggled={true}
+          />
+          <SVGElement
+            edges={edges}
+            previewEvent={previewEvent}
+            current={current}
+            preview={preview}
+          />
+        </StyledVisualization>
+        <ToolPanel current={current} />
+      </SplitPane>
+    </StyledStateChart>
+  )
 }

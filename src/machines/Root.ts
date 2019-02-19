@@ -1,4 +1,3 @@
-import * as React from 'react'
 import { interpret, Machine, MachineConfig, MachineOptions } from 'xstate'
 import { ToolPanelMachine } from './ToolPanel'
 import { AppMachine } from './App'

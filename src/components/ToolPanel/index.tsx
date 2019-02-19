@@ -5,7 +5,6 @@ import { State } from 'xstate'
 import { Editor } from './Editor'
 
 interface Props {
-  view: string
   current: State<any, any>
 }
 
@@ -90,7 +89,7 @@ const SelectedView = (props: SelectedViewProps) => {
 }
 
 export const ToolPanel = (props: Props) => {
-  const { /*view,*/ current } = props
+  const { current } = props
   const [activeView, setView] = useState('definition')
 
   return (

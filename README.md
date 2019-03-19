@@ -30,3 +30,4 @@ More than simply inspiration, the starting point for this project is David Khour
 - [ ] implement the PWA pattern so the visualizer can be used in no and limited bandwidth circumstances
 - [ ] create an Electron app for even more local visualization
 - [x] add Travis CI and Coveralls testing
+- [ ] add support for better testing

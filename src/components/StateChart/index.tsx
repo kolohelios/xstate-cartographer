@@ -78,6 +78,15 @@ interface StateChartWrapperProps {
   height?: number | string
 }
 
+const HideToolPanel = () => {
+  return (
+    <div>
+      <div style={{ backgroundColor: 'green', height: 40, width: 40 }} />
+      <div style={{ backgroundColor: 'green', height: 40, width: 40 }} />
+    </div>
+  )
+}
+
 export const StateChartWrapper = (props: StateChartWrapperProps) => {
   const appContext = React.useContext(AppContext)
   const [machine, setMachine] = useState(defaultMachine)
@@ -160,7 +169,7 @@ export const StateChart = (props: StateChartProps) => {
       }}
     >
       <SplitPane
-        split="vertical"
+        split="horizontal"
         minSize={350}
         primary="second"
         resizerStyle={{
@@ -201,6 +210,7 @@ export const StateChart = (props: StateChartProps) => {
         </StyledVisualization>
         <ToolPanel current={current} />
       </SplitPane>
+      <HideToolPanel />
     </StyledStateChart>
   )
 }

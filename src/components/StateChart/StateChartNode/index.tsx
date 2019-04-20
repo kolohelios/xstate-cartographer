@@ -1,7 +1,11 @@
 import * as React from 'react'
 import { Machine as _Machine, StateNode, State, EventObject } from 'xstate'
 import styled from 'styled-components'
-import { friendlyEventName, transitions, condToString } from 'src/lib/utils'
+import {
+  friendlyEventName,
+  transitions,
+  conditionToString,
+} from 'src/lib/utils'
 
 const StyledChildStatesToggle = styled.button`
   display: inline-block;
@@ -274,11 +278,11 @@ export const StateChartNode = (props: StateChartNodeProps) => {
             console.log(friendlyEventName(ownEvent))
           }
 
-          const disabled: boolean =
-            current.nextEvents.indexOf(ownEvent) === -1 ||
-            (!!transition.cond &&
-              typeof transition.cond === 'function' &&
-              !transition.cond(current.context, ownEvent, {}))
+          const disabled: boolean = current.nextEvents.indexOf(ownEvent) === -1 //||
+          // TODO figure out if the commented out code that follows was actually doing anything or not
+          // (!!transition.cond &&
+          //   typeof transition.cond === 'function' &&
+          //   !transition.cond(current.context, ownEvent, {}))
           return (
             <StyledEvent key={stateNode.id}>
               <StyledEventButton
@@ -290,7 +294,9 @@ export const StateChartNode = (props: StateChartNodeProps) => {
               >
                 {friendlyEventName(ownEvent)}
               </StyledEventButton>
-              {transition.cond && <div>{condToString(transition.cond)}</div>}
+              {transition.cond && (
+                <div>{conditionToString(transition.cond)}</div>
+              )}
               {transition.actions.map((action, i) => {
                 const actionString = action.type
                   ? action.type

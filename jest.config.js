@@ -7,5 +7,5 @@ module.exports = {
   testRegex: '(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$',
   testPathIgnorePatterns: ['\\.snap$', '<rootDir>/node_modules/'],
   cacheDirectory: '.jest/cache',
-  collectCoverageFrom: ['src/**.{ts,tsx}'],
+  collectCoverageFrom: ['src/**/*.{ts,tsx}'],
 }

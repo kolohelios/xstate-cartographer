@@ -34,10 +34,8 @@ const rootMachineConfig: MachineConfig<
   },
 }
 
-const rootMachineOptions: MachineOptions<
-  RootMachineContext,
-  RootMachineEvent
-> = {
+// TODO reinstate more specific types (instead of using any for the type of rootMachineOptions)
+const rootMachineOptions: any = {
   services: {
     appMachine: AppMachine,
     toolPanelMachine: ToolPanelMachine,

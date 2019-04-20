@@ -3,18 +3,25 @@ import { Machine, MachineConfig, interpret } from 'xstate'
 export enum ToolPanelMachineEvents {
   ShowDefinition = 'SHOW_DEFINITION',
   ShowState = 'SHOW_STATE',
+  ToggleVisibility = 'TOGGLE_VISIBILITY',
 }
 
 interface ToolPanelMachineStateSchema {
   states: {
-    definition: {}
-    state: {}
+    hidden: {}
+    shown: {
+      states: {
+        definition: {}
+        state: {}
+      }
+    }
   }
 }
 
 type ToolPanelMachineEvent =
   | { type: ToolPanelMachineEvents.ShowDefinition }
   | { type: ToolPanelMachineEvents.ShowState }
+  | { type: ToolPanelMachineEvents.ToggleVisibility }
 
 interface ToolPanelMachineContext {}
 
@@ -25,16 +32,29 @@ const toolPanelMachineConfig: MachineConfig<
 > = {
   id: 'toolPanel',
   context: {},
-  initial: 'definition',
+  initial: 'shown',
   states: {
-    definition: {
+    hidden: {
       on: {
-        [ToolPanelMachineEvents.ShowState]: 'state',
+        [ToolPanelMachineEvents.ToggleVisibility]: 'shown',
       },
     },
-    state: {
+    shown: {
+      initial: 'definition',
       on: {
-        [ToolPanelMachineEvents.ShowDefinition]: 'definition',
+        [ToolPanelMachineEvents.ToggleVisibility]: 'hidden',
+      },
+      states: {
+        definition: {
+          on: {
+            [ToolPanelMachineEvents.ShowState]: 'state',
+          },
+        },
+        state: {
+          on: {
+            [ToolPanelMachineEvents.ShowDefinition]: 'definition',
+          },
+        },
       },
     },
   },

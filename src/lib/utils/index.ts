@@ -1,4 +1,4 @@
-export { condToString } from './condToString'
+export { conditionToString } from './conditionToString'
 export { flatten } from './flatten'
 export { friendlyEventName } from './friendlyEventName'
 export { toMachine } from './toMachine'

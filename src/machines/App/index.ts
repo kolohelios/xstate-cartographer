@@ -163,7 +163,8 @@ const appMachineConfig: MachineConfig<
   },
 }
 
-const appMachineOptions: MachineOptions<AppMachineContext, AppMachineEvent> = {
+// TODO reinstate more specific types (instead of using any for the type of appMachineOptions)
+const appMachineOptions: any = {
   services: {
     checkCode,
     getMachines,

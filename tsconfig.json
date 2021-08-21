@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "jsx": "react",
-    "target": "es5",
+    "target": "esnext",
     "lib": ["es6", "es7", "dom"],
     "module": "commonjs",
     "baseUrl": ".",
@@ -9,6 +9,7 @@
       "src": ["src"]
     },
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "skipLibCheck": true
   }
 }

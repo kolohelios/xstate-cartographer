@@ -1,28 +1,28 @@
-import * as React from 'react'
-import { StateChartNode } from '.'
-import TestRenderer from 'react-test-renderer'
-import { Machine, interpret } from 'xstate'
+import * as React from "react";
+import { StateChartNode } from ".";
+import TestRenderer from "react-test-renderer";
+import { Machine, interpret } from "xstate";
 
 const simpleMachine = Machine({
-  id: 'light',
-  initial: 'green',
+  id: "light",
+  initial: "green",
   states: {
     green: {
-      on: { TIMER: 'yellow' },
+      on: { TIMER: "yellow" },
     },
     yellow: {
-      on: { TIMER: 'red' },
+      on: { TIMER: "red" },
     },
     red: {
-      on: { TIMER: 'green' },
+      on: { TIMER: "green" },
     },
   },
-})
+});
 
-const simpleMachineService = interpret(simpleMachine).start().state
+const simpleMachineService = interpret(simpleMachine).start().state;
 
-describe('StateChartNode', () => {
-  it('should render', () => {
+describe("StateChartNode", () => {
+  it("should render", () => {
     const stateChartNode = TestRenderer.create(
       <StateChartNode
         stateNode={simpleMachine}
@@ -34,8 +34,8 @@ describe('StateChartNode', () => {
         onToggle={() => null}
         toggledStates={{}}
       />
-    ).toJSON()
+    ).toJSON();
 
-    expect(stateChartNode).toBeDefined()
-  })
-})
+    expect(stateChartNode).toBeDefined();
+  });
+});

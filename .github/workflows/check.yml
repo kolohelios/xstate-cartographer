@@ -1,0 +1,21 @@
+# This workflow will run tests and validate code quality and consistency using node prior to acceptance
+
+name: Node.js CI
+
+on: 
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test

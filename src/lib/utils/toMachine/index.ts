@@ -3,34 +3,34 @@ import { ModuleKind, transpileModule } from 'typescript'
 import * as XState from 'xstate'
 
 export function toMachine(machine: StateNode<any> | string): StateNode<any> {
-  if (typeof machine !== 'string') {
-    return machine
-  }
+	if (typeof machine !== 'string') {
+		return machine
+	}
 
-  const machineWithoutExport = machine.replace(/export /g, '')
+	const machineWithoutExport = machine.replace(/export /g, '')
 
-  const transpiledOutput = transpileModule(machineWithoutExport, {
-    compilerOptions: { module: ModuleKind.CommonJS },
-  })
+	const transpiledOutput = transpileModule(machineWithoutExport, {
+		compilerOptions: { module: ModuleKind.CommonJS },
+	})
 
-  const transpiledString = transpiledOutput.outputText
+	const transpiledString = transpiledOutput.outputText
 
-  const createMachine = new Function(
-    'Machine',
-    'interpret',
-    'XState',
-    transpiledString
-  )
+	const createMachine = new Function(
+		'Machine',
+		'interpret',
+		'XState',
+		transpiledString,
+	)
 
-  let resultMachine: StateNode<any>
+	let resultMachine: StateNode<any>
 
-  const machineProxy = (config: any, options: any) => {
-    resultMachine = Machine(config, options)
+	const machineProxy = (config: any, options: any) => {
+		resultMachine = Machine(config, options)
 
-    return resultMachine
-  }
+		return resultMachine
+	}
 
-  createMachine(machineProxy, interpret, XState)
+	createMachine(machineProxy, interpret, XState)
 
-  return resultMachine! as StateNode<any>
+	return resultMachine! as StateNode<any>
 }

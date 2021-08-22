@@ -1,20 +1,23 @@
 {
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  },
-  "cSpell.words": [
-    "cond",
-    "fsms",
-    "khourshid",
-    "lcov",
-    "monokai",
-    "omni",
-    "resizer",
-    "scxml",
-    "statechart",
-    "transpiled",
-    "truthy",
-    "tslib",
-    "xstate"
-  ]
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": true
+	},
+	"editor.defaultFormatter": "dbaeumer.vscode-eslint",
+	"editor.formatOnSave": true,
+	"eslint.alwaysShowStatus": true,
+	"cSpell.words": [
+		"cond",
+		"fsms",
+		"khourshid",
+		"lcov",
+		"monokai",
+		"omni",
+		"resizer",
+		"scxml",
+		"statechart",
+		"transpiled",
+		"truthy",
+		"tslib",
+		"xstate"
+	]
 }

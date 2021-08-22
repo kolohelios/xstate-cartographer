@@ -2,11 +2,11 @@ import { StateNode, TransitionDefinition } from 'xstate'
 import { flatten } from '..'
 
 export function transitions(
-  stateNode: StateNode
+	stateNode: StateNode,
 ): TransitionDefinition<any, any>[] {
-  return flatten(
-    stateNode.ownEvents.map(event => {
-      return stateNode.definition.on[event]
-    })
-  )
+	return flatten(
+		stateNode.ownEvents.map(event => {
+			return stateNode.definition.on[event]
+		}),
+	)
 }

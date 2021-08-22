@@ -2,11 +2,11 @@ import { toMachine } from '.'
 import { Machine, StateNode } from 'xstate'
 
 const testMachine = Machine({
-  id: 'light',
-  initial: 'idle',
-  states: {
-    idle: {},
-  },
+	id: 'light',
+	initial: 'idle',
+	states: {
+		idle: {},
+	},
 })
 
 const testMachineJavaScriptString = `
@@ -53,18 +53,18 @@ const lightMachine = Machine<{}, LightStateSchema>({
 `
 
 describe('toMachine', () => {
-  it('should return a StateNode when passed a Machine', () => {
-    const toMachineResult = toMachine(testMachine)
-    expect(toMachineResult instanceof StateNode).toBeTruthy()
-  })
+	it('should return a StateNode when passed a Machine', () => {
+		const toMachineResult = toMachine(testMachine)
+		expect(toMachineResult instanceof StateNode).toBeTruthy()
+	})
 
-  it('should return a StateNode when passed a string of JavaScript code', () => {
-    const toMachineResult = toMachine(testMachineJavaScriptString)
-    expect(toMachineResult instanceof StateNode).toBeTruthy()
-  })
+	it('should return a StateNode when passed a string of JavaScript code', () => {
+		const toMachineResult = toMachine(testMachineJavaScriptString)
+		expect(toMachineResult instanceof StateNode).toBeTruthy()
+	})
 
-  it('should return a StateNode when passed a string of TypeScript code', () => {
-    const toMachineResult = toMachine(testMachineTypeScriptString)
-    expect(toMachineResult instanceof StateNode).toBeTruthy()
-  })
+	it('should return a StateNode when passed a string of TypeScript code', () => {
+		const toMachineResult = toMachine(testMachineTypeScriptString)
+		expect(toMachineResult instanceof StateNode).toBeTruthy()
+	})
 })

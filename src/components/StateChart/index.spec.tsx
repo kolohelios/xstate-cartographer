@@ -1,11 +1,11 @@
-import * as React from "react";
-import { StateChart } from ".";
-import TestRenderer from "react-test-renderer";
-import { toMachine } from "src/lib/utils";
+import * as React from 'react'
+import { StateChart } from '.'
+import TestRenderer from 'react-test-renderer'
+import { toMachine } from 'src/lib/utils'
 
 // mocking react-ace or we get a warning from brace/index.js:3999, "Could not load worker TypeError: URL.createObjectURL is not a function"
-jest.mock("react-ace");
-jest.mock("src/sampleMachines/defaultMachine.js.txt", () => {});
+jest.mock('react-ace')
+jest.mock('src/sampleMachines/defaultMachine.js.txt', () => {})
 
 const simpleStateChart = `
 const lightMachine = Machine({
@@ -23,14 +23,14 @@ const lightMachine = Machine({
     }
   }
 });
-`;
+`
 
-describe("StateChart", () => {
-  it("should render", () => {
-    const stateChart = TestRenderer.create(
-      <StateChart machine={toMachine(simpleStateChart)} />
-    ).toJSON();
+describe('StateChart', () => {
+	it('should render', () => {
+		const stateChart = TestRenderer.create(
+			<StateChart machine={toMachine(simpleStateChart)} />,
+		).toJSON()
 
-    expect(stateChart).toBeDefined();
-  });
-});
+		expect(stateChart).toBeDefined()
+	})
+})

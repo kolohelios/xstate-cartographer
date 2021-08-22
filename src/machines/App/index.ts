@@ -117,7 +117,7 @@ const appMachineConfig: MachineConfig<
 							editorCode: (
 								context: AppMachineContext,
 								// TODO HACK we need typing for events where we can pass it a specific type of event so we don't use any here
-								event: any
+								event: any,
 							) => {
 								console.log(context, event)
 								return event.data

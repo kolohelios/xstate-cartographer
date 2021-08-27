@@ -244,7 +244,7 @@ export const StateChartNode = (props: StateChartNodeProps) => {
 				<strong>{stateNode.key}</strong>
 			</StyledStateNodeHeader>
 			<StyledStateNodeActions>
-				{stateNode.definition.onEntry.map(action => {
+				{stateNode.definition.entry.map(action => {
 					const actionString = action.type
 						? action.type
 						: JSON.stringify(action)
@@ -254,7 +254,7 @@ export const StateChartNode = (props: StateChartNodeProps) => {
 						</StyledStateNodeAction>
 					)
 				})}
-				{stateNode.definition.onExit.map(action => {
+				{stateNode.definition.exit.map(action => {
 					const actionString = JSON.stringify(action)
 					return (
 						<StyledStateNodeAction key={actionString} data-action-type="exit">
@@ -265,7 +265,7 @@ export const StateChartNode = (props: StateChartNodeProps) => {
 			</StyledStateNodeActions>
 			<StyledEvents>
 				{transitions(stateNode).map(transition => {
-					const ownEvent = transition.event
+					const ownEvent = transition.eventType
 					if (process.env.NODE_ENV !== 'test') {
 						console.log(friendlyEventName(ownEvent))
 					}

@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { useRef } from 'react'
-import { Edge, EventObject } from 'xstate'
+import { DirectedGraphEdge } from '@xstate/graph'
 
 interface Props {
-	edges: Edge<any, EventObject, string>[]
+	edges: DirectedGraphEdge[]
 	previewEvent: any
 	preview: any
 	current: any
@@ -78,7 +78,7 @@ export const SVGElement = (props: Props) => {
 				}
 
 				const elEvent = document.querySelector(
-					`[data-id="${edge.source.id}:${edge.event}"]`,
+					`[data-id="${edge.source.id}:${edge.label}"]`,
 				)
 				const elSource = document.querySelector(`[data-id="${edge.source.id}"]`)
 				const elTarget = document.querySelector(`[data-id="${edge.target.id}"]`)
@@ -146,7 +146,7 @@ export const SVGElement = (props: Props) => {
 					.join(' ')
 
 				const isHighlighted =
-					edge.event === previewEvent &&
+					edge.label === previewEvent &&
 					current.matches(edge.source.path.join('.')) &&
 					preview &&
 					preview.matches(edge.target.path.join('.'))

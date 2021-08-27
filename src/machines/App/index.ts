@@ -150,14 +150,14 @@ const appMachineConfig: MachineConfig<
 			},
 		},
 		valid: {
-			on: {
-				'': {
+			always: [
+				{
 					target: 'ready',
 					actions: [
-						assign({ stagedMachineCode: (context: any) => context.editorCode }),
+						assign({ stagedMachineCode: context => context.editorCode }),
 					],
 				},
-			},
+			],
 		},
 		invalid: {},
 	},

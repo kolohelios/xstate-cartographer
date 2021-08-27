@@ -6,18 +6,18 @@ import {
 	Machine as _Machine,
 	StateNode,
 	State,
-	OmniEventObject,
 	EventObject,
 } from 'xstate'
-import { getEdges } from 'xstate/lib/graph'
+import { toDirectedGraph } from '@xstate/graph'
 import { StateChartNode } from './StateChartNode'
 import { ToolPanel } from '../ToolPanel'
 import { toMachine } from 'src/lib/utils'
 import { SVGElement } from './SVGElement'
 import SplitPane from 'react-split-pane'
-import { AppContext } from 'src/machines/App/provider'
-
+import { useMachine } from '@xstate/react';
 import * as rawText from '../../sampleMachines/defaultMachine.js.txt'
+import { AppMachine } from 'src/machines/App'
+
 const defaultMachine = rawText.default
 
 const StyledStateChart = styled.div`
@@ -55,24 +55,24 @@ const StyledVisualization = styled.div`
 `
 
 // TODO verify that getEvents is needed
-const getEvents = (stateNodes: StateNode<any>[]) => {
-	const events = new Set()
-	stateNodes.forEach(stateNode => {
-		const potentialEvents = Object.keys(stateNode.on)
+// const getEvents = (stateNodes: StateNode<any>[]) => {
+// 	const events = new Set()
+// 	stateNodes.forEach(stateNode => {
+// 		const potentialEvents = Object.keys(stateNode.on)
 
-		potentialEvents.forEach(event => {
-			const transitions = stateNode.on[event]
+// 		potentialEvents.forEach(event => {
+// 			const transitions = stateNode.on[event]
 
-			transitions.forEach(transition => {
-				if (transition.target !== undefined) {
-					events.add(event)
-				}
-			})
-		})
-	})
+// 			transitions.forEach(transition => {
+// 				if (transition.target !== undefined) {
+// 					events.add(event)
+// 				}
+// 			})
+// 		})
+// 	})
 
-	return events
-}
+// 	return events
+// }
 
 interface StateChartWrapperProps {
 	height?: number | string
@@ -88,7 +88,7 @@ const HideToolPanel = () => {
 }
 
 export const StateChartWrapper = (props: StateChartWrapperProps) => {
-	const appContext = React.useContext(AppContext)
+	const [state, send] = useMachine(AppMachine)
 	const [machine, setMachine] = useState(defaultMachine)
 
 	// setMachine(appContext.stagedMachineCode)
@@ -101,7 +101,7 @@ export const StateChart = (props: StateChartProps) => {
 
 	const [current, setCurrent] = useState(initialMachine.initialState)
 	const [preview, setPreview] = useState<
-		State<any, OmniEventObject<EventObject>> | undefined
+		State<any, EventObject> | undefined
 	>(undefined)
 	const [previewEvent, setPreviewEvent] = useState<string | undefined>(
 		undefined,
@@ -151,7 +151,9 @@ export const StateChart = (props: StateChartProps) => {
 		})
 	}
 
-	const edges = getEdges(machine)
+	const directedGraph = useMemo(() => toDirectedGraph(machine), [machine])
+
+	const edges = directedGraph.edges
 
 	return (
 		<StyledStateChart

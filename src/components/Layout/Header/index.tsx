@@ -1,6 +1,7 @@
 import * as React from 'react'
 import styled from 'styled-components'
-import { updateStateChart } from 'src/machines/App/provider'
+import { useMachine } from '@xstate/react';
+import { AppMachine, AppMachineEvents } from 'src/machines/App';
 
 const HeaderContainer = styled.div`
 	display: flex;
@@ -27,6 +28,10 @@ const Button = styled.button`
 `
 
 export const Header = () => {
+	const [state, send] = useMachine(AppMachine)
+
+	const updateStateChart = () => send(AppMachineEvents.UpdateStateChart)
+
 	return (
 		<HeaderContainer>
 			<HeaderText>XState Cartographer</HeaderText>

@@ -78,7 +78,7 @@ export const SVGElement = (props: Props) => {
 				}
 
 				const elEvent = document.querySelector(
-					`[data-id="${edge.source.id}:${edge.label}"]`,
+					`[data-id="${edge.source.id}:${edge.label.text}"]`,
 				)
 				const elSource = document.querySelector(`[data-id="${edge.source.id}"]`)
 				const elTarget = document.querySelector(`[data-id="${edge.target.id}"]`)

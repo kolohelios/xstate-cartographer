@@ -153,7 +153,7 @@ export const StateChart = (props: StateChartProps) => {
 
 	const directedGraph = useMemo(() => toDirectedGraph(machine), [machine])
 
-	const edges = directedGraph.edges
+	const edges = directedGraph.children.map(c => c.edges).reduce((a, n) => a.concat(n), [])
 
 	return (
 		<StyledStateChart

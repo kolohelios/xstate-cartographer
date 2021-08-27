@@ -227,8 +227,8 @@ export const StateChartNode = (props: StateChartNodeProps) => {
 			key={stateNode.id}
 			data-id={stateNode.id}
 			data-type={dataType}
-			data-active={isActive && stateNode.parent}
-			data-preview={isPreview && stateNode.parent}
+			data-active={isActive && stateNode.parent && stateNode.parent.id}
+			data-preview={isPreview && stateNode.parent && stateNode.parent.id}
 			// data-open={this.props.toggled || undefined}
 			data-open={true}>
 			<StyledStateNodeHeader

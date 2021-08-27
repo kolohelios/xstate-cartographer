@@ -6,7 +6,6 @@ import {
 	Machine as _Machine,
 	StateNode,
 	State,
-	OmniEventObject,
 	EventObject,
 } from 'xstate'
 import { toDirectedGraph } from '@xstate/graph'
@@ -102,7 +101,7 @@ export const StateChart = (props: StateChartProps) => {
 
 	const [current, setCurrent] = useState(initialMachine.initialState)
 	const [preview, setPreview] = useState<
-		State<any, OmniEventObject<EventObject>> | undefined
+		State<any, EventObject> | undefined
 	>(undefined)
 	const [previewEvent, setPreviewEvent] = useState<string | undefined>(
 		undefined,

@@ -210,7 +210,7 @@ const StyledStateNodeHeader = styled.header`
 `
 
 export const StateChartNode = (props: StateChartNodeProps) => {
-	const { stateNode, current, preview, onEvent, onPreEvent, onExitPreEvent } =
+	const { stateNode, current, preview, onEvent, onPreEvent, onExitPreEvent, toggled } =
 		props
 
 	const isActive = current.matches(stateNode.path.join('.')) || undefined
@@ -229,8 +229,7 @@ export const StateChartNode = (props: StateChartNodeProps) => {
 			data-type={dataType}
 			data-active={isActive && stateNode.parent && stateNode.parent.id}
 			data-preview={isPreview && stateNode.parent && stateNode.parent.id}
-			// data-open={this.props.toggled || undefined}
-			data-open={true}>
+			data-open={toggled || undefined}>
 			<StyledStateNodeHeader
 				style={{
 					// @ts-ignore

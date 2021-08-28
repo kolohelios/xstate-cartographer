@@ -33,7 +33,7 @@ interface AppMachineContext {
 }
 
 type AppMachineEvent =
-	| { type: AppMachineEvents.UpdateCode; data: string }
+	| { type: AppMachineEvents.UpdateCode; value: string }
 	| { type: AppMachineEvents.UpdateStateChart }
 
 const getMachines = () =>
@@ -48,24 +48,45 @@ const getMachines = () =>
 		}
 	})
 
-const checkCode = (context: AppMachineContext, event: any) =>
+const checkCode = (context: AppMachineContext, event: any) => {
 	// this isn't asynchronous, and probably never will be, but it lets us use onDone/onError
-	new Promise((fulfilled, rejected) => {
+	return new Promise((fulfilled, rejected) => {
 		try {
-			const isEmpty = event.data === ''
+			const isEmpty = event.value === ''
 			if (isEmpty) {
 				rejected('isEmpty')
 			}
-			const isMachine = toMachine(event.data) instanceof StateNode
+
+			// TODO: this is a pretty naive approach to cleaning up the text editor's state machine
+			const removedLineBreaks = event.value.replace(/[\n\r]/g, '')
+			let machineBody = removedLineBreaks.match(/Machine\(([\w\W]+)\)/)
+			machineBody = machineBody[0].replace('Machine(', '')
+			machineBody = machineBody.substring(0, machineBody.length - 1);
+
+			if (!machineBody) {
+				rejected({ error: 'isNotValidMachine', detail: 'unable to parse Machine from text' })
+			}
+
+			// TODO: make this safer; this function should probably return a machine, though we'll also have to be careful of activities and actions
+			const createObjectFromString = (machineString: string) => {
+				return eval(`(function () { return ${machineString}; })()`);
+			}
+
+			const objectified = createObjectFromString(machineBody)
+			const trialMachine = toMachine(objectified)
+
+			// TODO: make this check for a machine more robust, maybe by interpreting it and checking some properties
+			const isMachine = Boolean(trialMachine.initial)
 			if (isMachine) {
 				fulfilled('isValid')
 			} else {
-				rejected('isNotValidMachine')
+				rejected({ error: 'isNotValidMachine', detail: 'did not match instanceof StateNode' })
 			}
 		} catch (error) {
-			rejected('isNotValidJavaScriptOrTypeScript')
+			rejected({ error: 'isNotValidJavaScriptOrTypeScript', detail: error })
 		}
 	})
+};
 
 const appMachineConfig: MachineConfig<
 	AppMachineContext,
@@ -87,11 +108,11 @@ const appMachineConfig: MachineConfig<
 					target: 'ready',
 					actions: [
 						assign({
-							editorCode: (context: AppMachineContext, event: any) =>
+							editorCode: (context, event) =>
 								event.data,
-							machineCode: (context: AppMachineContext, event: any) =>
+							machineCode: (context, event) =>
 								event.data,
-							stagedMachineCode: (context: AppMachineContext, event: any) =>
+							stagedMachineCode: (context, event) =>
 								event.data,
 						}),
 					],
@@ -115,12 +136,11 @@ const appMachineConfig: MachineConfig<
 					actions: [
 						assign({
 							editorCode: (
-								context: AppMachineContext,
+								context,
 								// TODO HACK we need typing for events where we can pass it a specific type of event so we don't use any here
-								event: any,
+								event,
 							) => {
-								console.log(context, event)
-								return event.data
+								return event.value
 							},
 						}),
 					],
@@ -129,7 +149,7 @@ const appMachineConfig: MachineConfig<
 					target: 'ready',
 					actions: [
 						assign({
-							machineCode: (context: any) => context.stagedMachineCode,
+							machineCode: context => context.stagedMachineCode,
 						}),
 					],
 				},
@@ -176,5 +196,3 @@ export const AppMachine = Machine<
 	AppMachineStateSchema,
 	AppMachineEvent
 >(appMachineConfig, appMachineOptions)
-
-export const appMachineService = interpret(AppMachine).start()

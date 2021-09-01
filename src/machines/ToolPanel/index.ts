@@ -1,4 +1,4 @@
-import { Machine, MachineConfig, interpret } from 'xstate'
+import { Machine, MachineConfig } from 'xstate'
 
 export enum ToolPanelMachineEvents {
 	ShowDefinition = 'SHOW_DEFINITION',
@@ -6,7 +6,7 @@ export enum ToolPanelMachineEvents {
 	ToggleVisibility = 'TOGGLE_VISIBILITY',
 }
 
-interface ToolPanelMachineStateSchema {
+export interface ToolPanelMachineStateSchema {
 	states: {
 		hidden: {}
 		shown: {
@@ -18,12 +18,12 @@ interface ToolPanelMachineStateSchema {
 	}
 }
 
-type ToolPanelMachineEvent =
+export type ToolPanelMachineEvent =
 	| { type: ToolPanelMachineEvents.ShowDefinition }
 	| { type: ToolPanelMachineEvents.ShowState }
 	| { type: ToolPanelMachineEvents.ToggleVisibility }
 
-interface ToolPanelMachineContext {}
+export interface ToolPanelMachineContext {}
 
 const toolPanelMachineConfig: MachineConfig<
 	ToolPanelMachineContext,
@@ -65,5 +65,3 @@ export const ToolPanelMachine = Machine<
 	ToolPanelMachineStateSchema,
 	ToolPanelMachineEvent
 >(toolPanelMachineConfig)
-
-export const toolPanelMachineService = interpret(ToolPanelMachine).start()

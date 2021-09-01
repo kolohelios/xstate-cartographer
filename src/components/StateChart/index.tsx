@@ -1,22 +1,18 @@
 import * as React from 'react'
 import { useMemo, useState } from 'react'
 import styled from 'styled-components'
-import { interpret, Interpreter } from 'xstate/lib/interpreter'
-import {
-	Machine as _Machine,
-	StateNode,
-	State,
-	EventObject,
-} from 'xstate'
+import { interpret } from 'xstate/lib/interpreter'
+import { Machine as _Machine, StateNode, State, EventObject } from 'xstate'
 import { toDirectedGraph } from '@xstate/graph'
 import { StateChartNode } from './StateChartNode'
 import { ToolPanel } from '../ToolPanel'
 import { toMachine } from 'src/lib/utils'
 import { SVGElement } from './SVGElement'
 import SplitPane from 'react-split-pane'
-import { useMachine } from '@xstate/react';
+import { useActor } from '@xstate/react'
 import * as rawText from '../../sampleMachines/defaultMachine.js.txt'
 import { AppMachine } from 'src/machines/App'
+import { GlobalStateContext } from 'src/App'
 
 const defaultMachine = rawText.default
 
@@ -88,21 +84,28 @@ const HideToolPanel = () => {
 }
 
 export const StateChartWrapper = (props: StateChartWrapperProps) => {
-	const [state, send] = useMachine(AppMachine)
-	const [machine, setMachine] = useState(defaultMachine)
+	// const [machine, setMachine] = useState(defaultMachine)
+	const globalServices = React.useContext(GlobalStateContext)
+	const [state, send] = useActor(globalServices.appMachineService!)
 
-	// setMachine(appContext.stagedMachineCode)
+	// TODO: make createObjectFromString and the trail machine stuff utils and consume here and in AppMachine
+	const createObjectFromString = (machineString: string) => {
+		return eval(`(function () { return ${machineString}; })()`)
+	}
 
-	return <StateChart machine={machine} />
+	const objectified = createObjectFromString(state.context.machineCode)
+	const trialMachine = toMachine(objectified)
+
+	return <StateChart machine={trialMachine} />
 }
 
 export const StateChart = (props: StateChartProps) => {
 	const initialMachine = toMachine(props.machine)
 
-	const [current, setCurrent] = useState(initialMachine.initialState)
-	const [preview, setPreview] = useState<
-		State<any, EventObject> | undefined
-	>(undefined)
+	const [current, setCurrent] = useState(initialMachine && initialMachine.initialState)
+	const [preview, setPreview] = useState<State<any, EventObject> | undefined>(
+		undefined,
+	)
 	const [previewEvent, setPreviewEvent] = useState<string | undefined>(
 		undefined,
 	)
@@ -111,8 +114,10 @@ export const StateChart = (props: StateChartProps) => {
 		{},
 	)
 
-	const service = useMemo(() => {
-		const service = interpret(initialMachine)
+	// debugger
+
+	const service = machine && useMemo(() => {
+		const service = interpret(machine || defaultMachine)
 		service.onTransition(newCurrent => {
 			setCurrent(newCurrent)
 
@@ -124,25 +129,25 @@ export const StateChart = (props: StateChartProps) => {
 		})
 		service.start()
 		return service
-	}, [props.machine])
+	}, [machine])
 
-	// React.useEffect(() => {
-	//   service.stop()
-	//   service.onTransition(newCurrent => {
-	//     console.log('onTransition')
-	//     setCurrent(newCurrent)
+	machine && React.useEffect(() => {
+		service.stop()
+		service.onTransition(newCurrent => {
+			console.log('onTransition')
+			setCurrent(newCurrent)
 
-	//     if (previewEvent) {
-	//       const newPreview = service.nextState(previewEvent)
+			if (previewEvent) {
+			const newPreview = service.nextState(previewEvent)
 
-	//       setPreview(newPreview)
-	//     }
-	//   })
+			setPreview(newPreview)
+			}
+		})
 
-	//   return () => {
-	//     service.stop()
-	//   }
-	// }, [props.machine])
+		return () => {
+			service.stop()
+		}
+	}, [machine])
 
 	const toggleState = (id: string) => {
 		setToggledStates({
@@ -151,9 +156,13 @@ export const StateChart = (props: StateChartProps) => {
 		})
 	}
 
-	const directedGraph = useMemo(() => toDirectedGraph(machine), [machine])
+	const directedGraph = machine && useMemo(() => toDirectedGraph(machine), [machine])
 
-	const edges = directedGraph.children.map(c => c.edges).reduce((a, n) => a.concat(n), [])
+	const edges = machine && directedGraph.children
+		.map(c => c.edges)
+		.reduce((a, n) => a.concat(n), [])
+
+	const dragFinished = console.log
 
 	return (
 		<StyledStateChart
@@ -170,47 +179,51 @@ export const StateChart = (props: StateChartProps) => {
 				'--radius': '0.2rem',
 			}}>
 			<SplitPane
-				split="horizontal"
+				split="vertical"
 				minSize={350}
 				primary="second"
+				size={500}
+				onDragFinished={dragFinished}
 				resizerStyle={{
 					backgroundColor: '#000',
 					width: 11,
 					cursor: 'ew-resize',
 				}}>
-				<StyledVisualization>
-					<StateChartNode
-						stateNode={machine}
-						current={current}
-						preview={preview}
-						onEvent={e => {
-							console.log(e, service)
-							service.send(e)
-						}}
-						onPreEvent={(event: string) => {
-							if (event) {
-								setPreview(service.nextState(event))
-								setPreviewEvent(event)
-							}
-						}}
-						onToggle={id => toggleState(id)}
-						onExitPreEvent={() => {
-							setPreview(undefined)
-							setPreviewEvent(undefined)
-						}}
-						toggledStates={toggledStates}
-						toggled={true}
-					/>
-					<SVGElement
-						edges={edges}
-						previewEvent={previewEvent}
-						current={current}
-						preview={preview}
-					/>
-				</StyledVisualization>
+				{machine && 
+					<StyledVisualization>
+						<StateChartNode
+							stateNode={machine}
+							current={current}
+							preview={preview}
+							onEvent={e => {
+								console.log(e, service)
+								service.send(e)
+							}}
+							onPreEvent={(event: string) => {
+								if (event) {
+									setPreview(service.nextState(event))
+									setPreviewEvent(event)
+								}
+							}}
+							onToggle={id => toggleState(id)}
+							onExitPreEvent={() => {
+								setPreview(undefined)
+								setPreviewEvent(undefined)
+							}}
+							toggledStates={toggledStates}
+							toggled={true}
+						/>
+						<SVGElement
+							edges={edges}
+							previewEvent={previewEvent}
+							current={current}
+							preview={preview}
+						/>
+					</StyledVisualization>
+				}
 				<ToolPanel current={current} />
 			</SplitPane>
-			<HideToolPanel />
+			{/* <HideToolPanel /> */}
 		</StyledStateChart>
 	)
 }

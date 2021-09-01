@@ -210,8 +210,15 @@ const StyledStateNodeHeader = styled.header`
 `
 
 export const StateChartNode = (props: StateChartNodeProps) => {
-	const { stateNode, current, preview, onEvent, onPreEvent, onExitPreEvent, toggled } =
-		props
+	const {
+		stateNode,
+		current,
+		preview,
+		onEvent,
+		onPreEvent,
+		onExitPreEvent,
+		toggled,
+	} = props
 
 	const isActive = current.matches(stateNode.path.join('.')) || undefined
 	const isPreview = preview
@@ -263,7 +270,7 @@ export const StateChartNode = (props: StateChartNodeProps) => {
 				})}
 			</StyledStateNodeActions>
 			<StyledEvents>
-				{transitions(stateNode).map(transition => {
+				{stateNode && transitions(stateNode).map(transition => {
 					const ownEvent = transition.eventType
 					if (process.env.NODE_ENV !== 'test') {
 						console.log(friendlyEventName(ownEvent))

@@ -1,7 +1,8 @@
-import * as React from 'react'
+import React, { useContext, useEffect } from 'react'
 import styled from 'styled-components'
-import { useMachine } from '@xstate/react';
-import { AppMachine, AppMachineEvents } from 'src/machines/App';
+import { useActor } from '@xstate/react'
+import { AppMachineEvents } from 'src/machines/App'
+import { GlobalStateContext } from 'src/App'
 
 const HeaderContainer = styled.div`
 	display: flex;
@@ -28,7 +29,12 @@ const Button = styled.button`
 `
 
 export const Header = () => {
-	const [state, send] = useMachine(AppMachine)
+	const globalServices = useContext(GlobalStateContext)
+	const [state, send] = useActor(globalServices.appMachineService!)
+
+	useEffect(() => {
+		console.log(state)
+	}, [state])
 
 	const updateStateChart = () => send(AppMachineEvents.UpdateStateChart)
 

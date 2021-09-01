@@ -1,15 +1,17 @@
 import * as React from 'react'
-import { useContext, useEffect } from 'react'
+import { useContext } from 'react'
 import AceEditor from 'react-ace'
 import 'brace/theme/monokai'
 import 'brace/mode/typescript'
-import { useMachine } from '@xstate/react'
-import { AppMachine, AppMachineEvents } from 'src/machines/App'
+import { useActor } from '@xstate/react'
+import { AppMachineEvents } from 'src/machines/App'
+import { GlobalStateContext } from 'src/App'
 
 export const Editor = () => {
-	const [state, send] = useMachine(AppMachine)
+	const globalServices = useContext(GlobalStateContext);
+	const [state, send] = useActor(globalServices.appMachineService!);
 
-	const updateCode = (value: string) => send(AppMachineEvents.UpdateCode, { value })
+	const updateCode = (value: string) => send({ type: AppMachineEvents.UpdateCode, value })
 
 	return (
 		<AceEditor
@@ -17,7 +19,7 @@ export const Editor = () => {
 			theme="monokai"
 			editorProps={{ $blockScrolling: true }}
 			value={state.context.editorCode}
-			onChange={value => updateCode(value)}
+			onChange={updateCode}
 			setOptions={{ tabSize: 2 }}
 			width="100%"
 			height="100%"
